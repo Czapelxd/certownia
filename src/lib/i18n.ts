@@ -15,7 +15,7 @@ const pl: Dict = {
     "Wygeneruj zaufany certyfikat HTTPS dla swojej domeny. Za darmo, bez rejestracji, bez instalowania niczego.",
   "hero.trust.title": "Twój klucz prywatny nigdy nie opuszcza tego komputera",
   "hero.trust.body":
-    "Cała kryptografia dzieje się w Twojej przeglądarce. Nasz serwer tylko przekazuje żądania do Let's Encrypt i nigdy nie widzi Twojego klucza prywatnego. Kod jest otwarty — możesz to sprawdzić.",
+    "Cała kryptografia dzieje się w Twojej przeglądarce, która łączy się z Let's Encrypt bezpośrednio. Żaden serwer nie pośredniczy i nikt nie widzi Twojego klucza prywatnego. Kod jest otwarty — możesz to sprawdzić.",
   "hero.start": "Zaczynamy",
   "hero.step1": "Podaj domenę",
   "hero.step1.desc": "Wpisz adres, dla którego chcesz certyfikat.",
@@ -142,7 +142,7 @@ const en: Dict = {
     "Generate a trusted HTTPS certificate for your domain. Free, no sign-up, nothing to install.",
   "hero.trust.title": "Your private key never leaves this computer",
   "hero.trust.body":
-    "All cryptography happens in your browser. Our server only relays requests to Let's Encrypt and never sees your private key. The code is open source — you can verify it yourself.",
+    "All cryptography happens in your browser, which talks to Let's Encrypt directly. No server sits in the middle, and nobody sees your private key. The code is open source — you can verify it yourself.",
   "hero.start": "Get started",
   "hero.step1": "Enter your domain",
   "hero.step1.desc": "Type the address you want a certificate for.",
