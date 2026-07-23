@@ -333,12 +333,32 @@ function renderConfig(): HTMLElement {
 const DOMAIN_RE = /^(\*\.)?([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Convert an internationalized domain (Unicode U-labels) to its ASCII A-label
+// (punycode) form, which is what ACME requires. Pure-ASCII input is returned
+// unchanged so junk still fails the strict regex below.
+function toAscii(domain: string): string {
+  const isAscii = [...domain].every((ch) => ch.charCodeAt(0) <= 127);
+  if (isAscii) return domain; // pure ASCII - leave as-is
+  const wild = domain.startsWith("*.");
+  const base = wild ? domain.slice(2) : domain;
+  try {
+    const host = new URL(`https://${base}`).hostname; // URL punycodes the host
+    return wild ? `*.${host}` : host;
+  } catch {
+    return domain;
+  }
+}
+
 function readConfig(form: HTMLFormElement): Config | string {
   const raw = (form.querySelector("#f-domains") as HTMLInputElement).value;
-  const domains = raw
-    .split(/[\s,]+/)
-    .map((d) => d.trim().toLowerCase())
-    .filter(Boolean);
+  const domains = [
+    ...new Set(
+      raw
+        .split(/[\s,]+/)
+        .map((d) => toAscii(d.trim()).toLowerCase())
+        .filter(Boolean),
+    ),
+  ];
   if (domains.length === 0) return t("cfg.err.domains");
   for (const d of domains) {
     if (!DOMAIN_RE.test(d)) return t("cfg.err.domainInvalid", d);
@@ -431,7 +451,7 @@ function renderChallenge(): HTMLElement {
       dlBtn.addEventListener("click", () => downloadText(c.httpFilename!, c.httpContent!, "text/plain"));
       children.push(dlBtn);
     }
-    children.push(el("div", { class: "record-status", "data-status": c.domain }, [el("span", {}, ["·"])]));
+    children.push(el("div", { class: "record-status", "data-status": statusKey(c) }, [el("span", {}, ["·"])]));
     return el("div", { class: "record" }, children);
   });
 
@@ -452,8 +472,14 @@ function renderChallenge(): HTMLElement {
   return el("section", { class: "view" }, [stepper(1), el("div", { class: "panel" }, panelChildren)]);
 }
 
-function setRecordStatus(domain: string, status: string): void {
-  const node = root.querySelector(`[data-status="${domain}"]`);
+// Unique per authorization: apex and its wildcard share identifier.value, so
+// key on the wildcard-qualified name to avoid two rows colliding on one node.
+function statusKey(c: ChallengeInstruction): string {
+  return c.wildcard ? `*.${c.domain}` : c.domain;
+}
+
+function setRecordStatus(key: string, status: string): void {
+  const node = root.querySelector(`[data-status="${key}"]`);
   if (!node) return;
   const valid = status === "valid";
   const invalid = status === "invalid";
@@ -555,7 +581,9 @@ function describeError(e: unknown): string {
     if (e.isRateLimit) return `${t("err.rateLimited")}\n\n${e.detail}`;
     return e.detail;
   }
-  if (e instanceof TypeError) return t("err.network");
+  // Browser fetch network failures surface as TypeError ("Failed to fetch" /
+  // "NetworkError…" / "Load failed"). Match those, not every TypeError.
+  if (e instanceof TypeError && /fetch|network|load failed/i.test(e.message)) return t("err.network");
   return e instanceof Error ? e.message : String(e);
 }
 
@@ -613,8 +641,8 @@ async function runVerify(btn: HTMLButtonElement): Promise<void> {
   btn.disabled = true;
   btn.replaceChildren(spinner(), document.createTextNode(t("chal.verifying")));
   try {
-    await state.client!.verifyChallenges(state.challenges, (domain, status) =>
-      setRecordStatus(domain, status),
+    await state.client!.verifyChallenges(state.challenges, (c, status) =>
+      setRecordStatus(statusKey(c), status),
     );
     await runFinalize();
   } catch (e) {

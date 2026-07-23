@@ -113,4 +113,29 @@ describe("CSR", () => {
     }).names.map((n) => n.value);
     expect(names).toEqual(domains);
   });
+
+  it("omits the CommonName when the first domain exceeds 64 bytes", async () => {
+    const long = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.example.com";
+    expect(long.length).toBeGreaterThan(64);
+    const kp = (await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
+      "sign",
+      "verify",
+    ])) as CryptoKeyPair;
+
+    const der = base64urlToBytes(await csrToAcmeBase64url([long], kp));
+    const csr = new pkijs.CertificationRequest({ schema: asn1js.fromBER(der).result });
+
+    expect(await csr.verify()).toBe(true);
+    // No CN (Boulder rejects CN > 64 bytes); the SAN still carries the domain.
+    expect(csr.subject.typesAndValues.find((tv) => tv.type === "2.5.4.3")).toBeUndefined();
+
+    const extReq = csr.attributes?.find((a) => a.type === "1.2.840.113549.1.9.14");
+    const san = new pkijs.Extensions({ schema: extReq!.values[0] }).extensions.find(
+      (e) => e.extnID === "2.5.29.17",
+    );
+    const names = new pkijs.GeneralNames({
+      schema: asn1js.fromBER(san!.extnValue.valueBlock.valueHexView).result,
+    }).names.map((n) => n.value);
+    expect(names).toEqual([long]);
+  });
 });

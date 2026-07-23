@@ -236,14 +236,14 @@ export class AcmeClient {
   /** Tell the server to validate each challenge, then poll authzs to completion. */
   async verifyChallenges(
     challenges: ChallengeInstruction[],
-    onProgress?: (domain: string, status: string) => void,
+    onProgress?: (challenge: ChallengeInstruction, status: string) => void,
   ): Promise<void> {
     for (const c of challenges) {
       await this.signedRequest(c.challengeUrl, {});
     }
     for (const c of challenges) {
       await this.pollUntil(c.authzUrl, ["valid", "invalid"], (authz) => {
-        onProgress?.(c.domain, authz.status);
+        onProgress?.(c, authz.status);
       }).then((authz) => {
         if (authz.status !== "valid") {
           const err = authz.challenges?.find((x: any) => x.error)?.error;

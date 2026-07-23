@@ -60,7 +60,8 @@ const server = createServer(async (req, res) => {
   try {
     const method = req.method ?? "GET";
     const body = method === "GET" || method === "HEAD" ? undefined : await readBody(req);
-    const init = { method, body };
+    // redirect: "manual" — a 3xx to another origin would bypass the allowlist.
+    const init = { method, body, redirect: "manual" };
     if (req.headers["content-type"]) init.headers = { "content-type": req.headers["content-type"] };
 
     const upstream = await fetch(url.toString(), init);

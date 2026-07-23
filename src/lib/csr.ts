@@ -28,14 +28,17 @@ export async function generateCsrDer(
   const csr = new pkijs.CertificationRequest();
   csr.version = 0;
 
-  // CN = first domain. Let's Encrypt validates against the SAN list below, but
-  // a CN is conventional and keeps the CSR readable in tooling.
-  csr.subject.typesAndValues.push(
-    new pkijs.AttributeTypeAndValue({
-      type: "2.5.4.3", // commonName
-      value: new asn1js.Utf8String({ value: domains[0] }),
-    }),
-  );
+  // CN = first domain, but only when it fits the X.520 64-byte cap — Boulder
+  // rejects a longer CN ("CommonName too long"). CN is deprecated anyway and
+  // Let's Encrypt issues fine from a SAN-only CSR, so omit it past the limit.
+  if (new TextEncoder().encode(domains[0]).length <= 64) {
+    csr.subject.typesAndValues.push(
+      new pkijs.AttributeTypeAndValue({
+        type: "2.5.4.3", // commonName
+        value: new asn1js.Utf8String({ value: domains[0] }),
+      }),
+    );
+  }
 
   await csr.subjectPublicKeyInfo.importKey(keyPair.publicKey);
 

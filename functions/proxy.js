@@ -51,6 +51,8 @@ export async function onRequest(context) {
       ? { "content-type": request.headers.get("content-type") }
       : undefined,
     body: request.method === "GET" || request.method === "HEAD" ? undefined : await request.text(),
+    // Do not follow redirects: a 3xx to another origin would bypass the allowlist.
+    redirect: "manual",
   };
 
   const upstream = await fetch(url.toString(), init);
