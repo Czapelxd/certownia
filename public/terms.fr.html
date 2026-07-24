@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <title>Certownia — Conditions d'utilisation</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto; max-width: 760px; padding: 40px 20px 80px;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6; color: #1a1a1a; background: #f4efe6;
+      }
+      @media (prefers-color-scheme: dark) { body { color: #e6edf3; background: #0b1b2b; } }
+      h1 { font-size: 1.7rem; } h2 { font-size: 1.15rem; margin-top: 2em; }
+      a { color: #e91e63; } code { font-family: ui-monospace, monospace; font-size: .92em; }
+      .box { border: 1px solid #0002; border-radius: 8px; padding: 4px 18px; margin: 18px 0; }
+      @media (prefers-color-scheme: dark) { .box { border-color: #fff2; } }
+      hr { border: none; border-top: 1px solid #0002; margin: 3em 0; }
+      @media (prefers-color-scheme: dark) { hr { border-top-color: #fff2; } }
+      .back { display: inline-block; margin-bottom: 24px; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="./">← Certownia</a>
+
+    <h1>Conditions d'utilisation</h1>
+    <p>Dernière mise à jour&nbsp;: 24 juillet 2026</p>
+
+    <h2>1. Exploitant du service</h2>
+    <div class="box">
+      <p>
+        BAXY IT Sp. z o.o. (BAXY IT Spółka z ograniczoną odpowiedzialnością)<br />
+        Siège social&nbsp;: Plac Kaszubski 8/107, 81-350 Gdynia, Pologne<br />
+        KRS 0001108913 (Sąd Rejonowy Gdańsk-Północ w Gdańsku), NIP 5862406501, REGON 528800690<br />
+        Capital social&nbsp;: 5&nbsp;000 PLN<br />
+        Contact&nbsp;: <a href="mailto:michal@baxy.it">michal@baxy.it</a> (l'«&nbsp;Opérateur&nbsp;»)
+      </p>
+    </div>
+
+    <h2>2. Ce qu'est Certownia</h2>
+    <p>
+      Certownia est un outil gratuit, open source et fonctionnant uniquement dans le navigateur, qui
+      vous aide à obtenir un certificat SSL/TLS émis par Let's Encrypt. L'Opérateur n'est pas une
+      autorité de certification — les certificats sont émis par Let's Encrypt (ISRG) selon ses propres
+      conditions.
+    </p>
+
+    <h2>3. Service «&nbsp;en l'état&nbsp;» (sans garantie)</h2>
+    <p>
+      Le service est fourni «&nbsp;en l'état&nbsp;» et «&nbsp;selon disponibilité&nbsp;», sans garantie
+      d'aucune sorte — notamment quant à la disponibilité, au temps de fonctionnement, à l'exactitude
+      ou à l'adéquation d'un certificat ou d'une commande suggérée. Dans la mesure permise par la loi,
+      l'Opérateur décline toute responsabilité pour tout dommage résultant de l'utilisation du service.
+    </p>
+
+    <h2>4. Votre responsabilité</h2>
+    <ul>
+      <li>Vous êtes responsable de vos propres domaines, de votre DNS et de vos serveurs, ainsi que de vos droits sur ceux-ci.</li>
+      <li>
+        Vous êtes responsable de la conservation sécurisée de la clé privée téléchargée
+        (<code>privkey.pem</code>). Une clé perdue ne peut pas être récupérée — personne, y compris
+        l'Opérateur, ne la détient.
+      </li>
+      <li>
+        Vous ne pouvez demander un certificat que pour des domaines que vous possédez ou contrôlez.
+        Toute tentative d'obtenir un certificat pour des domaines pour lesquels vous n'êtes pas
+        autorisé est interdite.
+      </li>
+    </ul>
+
+    <h2>5. Limitation de responsabilité</h2>
+    <p>
+      Dans la mesure maximale permise par la loi, l'Opérateur n'est pas responsable d'un certificat
+      émis par erreur ou rejeté, d'une clé privée perdue ou divulguée, de l'épuisement des limites de
+      débit de Let's Encrypt, d'une interruption de service, ni des conséquences de l'exécution d'une
+      commande suggérée.
+    </p>
+
+    <h2>6. Commandes certbot / acme.sh</h2>
+    <p>
+      Vous exécutez les commandes suggérées sur votre propre serveur et à vos propres risques.
+      Examinez-les et adaptez-les au préalable (chemins, plugin du fournisseur DNS). Les commandes
+      comportent l'option <code>--agree-tos</code>, qui accepte en votre nom le contrat d'abonnement de
+      Let's Encrypt lorsqu'elles sont exécutées.
+    </p>
+
+    <h2>7. Droit applicable</h2>
+    <p>
+      Les présentes conditions sont régies par le droit polonais. Rien dans ce document ne limite les
+      droits impératifs des consommateurs dont vous pourriez bénéficier en vertu du droit de votre lieu
+      de résidence.
+    </p>
+  </body>
+</html>

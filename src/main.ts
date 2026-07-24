@@ -276,12 +276,20 @@ function renderFooter(): HTMLElement {
     el("div", { class: "foot-links" }, [
       el(
         "a",
-        { href: `${import.meta.env.BASE_URL}privacy.html`, target: "_blank", rel: "noopener" },
+        {
+          href: `${import.meta.env.BASE_URL}privacy.${getLang()}.html`,
+          target: "_blank",
+          rel: "noopener",
+        },
         [t("footer.privacy")],
       ),
       el(
         "a",
-        { href: `${import.meta.env.BASE_URL}terms.html`, target: "_blank", rel: "noopener" },
+        {
+          href: `${import.meta.env.BASE_URL}terms.${getLang()}.html`,
+          target: "_blank",
+          rel: "noopener",
+        },
         [t("footer.terms")],
       ),
       el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener" }, [t("footer.source")]),

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <title>Certownia — Política de Privacidad</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto; max-width: 760px; padding: 40px 20px 80px;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6; color: #1a1a1a; background: #f4efe6;
+      }
+      @media (prefers-color-scheme: dark) { body { color: #e6edf3; background: #0b1b2b; } }
+      h1 { font-size: 1.7rem; } h2 { font-size: 1.15rem; margin-top: 2em; }
+      a { color: #e91e63; } code { font-family: ui-monospace, monospace; font-size: .92em; }
+      .box { border: 1px solid #0002; border-radius: 8px; padding: 4px 18px; margin: 18px 0; }
+      @media (prefers-color-scheme: dark) { .box { border-color: #fff2; } }
+      hr { border: none; border-top: 1px solid #0002; margin: 3em 0; }
+      @media (prefers-color-scheme: dark) { hr { border-top-color: #fff2; } }
+      .back { display: inline-block; margin-bottom: 24px; text-decoration: none; }
+      footer { margin-top: 3em; font-size: .85rem; opacity: .7; }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="./">← Certownia</a>
+
+    <h1>Política de Privacidad</h1>
+    <p>Última actualización: 24 de julio de 2026</p>
+
+    <h2>1. Responsable del tratamiento</h2>
+    <div class="box">
+      <p>
+        BAXY IT Sp. z o.o. (BAXY IT Spółka z ograniczoną odpowiedzialnością)<br />
+        Domicilio social: Plac Kaszubski 8/107, 81-350 Gdynia, Polonia<br />
+        KRS 0001108913 (Juzgado de Distrito Gdańsk-Północ w Gdańsku), NIP 5862406501, REGON 528800690<br />
+        Capital social: 5000,00 zł / PLN 5,000<br />
+        Contacto: <a href="mailto:michal@baxy.it">michal@baxy.it</a>
+      </p>
+    </div>
+
+    <h2>2. Certownia no tiene servidor</h2>
+    <p>
+      La aplicación se ejecuta íntegramente en tu navegador. No operamos ningún backend que almacene
+      nada sobre ti, no usamos cookies y no ejecutamos analíticas. El código es de código abierto y
+      puede verificarse.
+    </p>
+
+    <h2>3. Qué tratamos y por qué</h2>
+    <ul>
+      <li>
+        <strong>Correo electrónico (opcional)</strong> — si se facilita, se transmite a Let's Encrypt
+        (ISRG) como contacto de la cuenta ACME, únicamente para avisos de caducidad del certificado.
+        Base jurídica: Art. 6(1)(b) RGPD (medidas adoptadas a petición tuya).
+      </li>
+      <li>
+        <strong>Nombre de dominio</strong> — se envía a resolutores DNS públicos (Cloudflare, Google)
+        para comprobar la propagación de los registros y detectar tu proveedor de DNS y, en el caso
+        del método de archivo HTTP, al relé público <code>allorigins.win</code> para obtener el archivo
+        de desafío. Base jurídica: Art. 6(1)(b) y (f) RGPD.
+      </li>
+      <li>
+        <strong>Claves y pedido</strong> — se generan y se conservan localmente en tu dispositivo
+        (véase §5). La clave privada del certificado nunca se envía a ningún sitio.
+      </li>
+    </ul>
+
+    <h2>4. Destinatarios y transferencias fuera del EEE</h2>
+    <p>
+      Los destinatarios son ISRG/Let's Encrypt, Cloudflare, Google y el operador de
+      <code>allorigins.win</code>, todos ubicados en los EE. UU. o que transfieren datos a ese país,
+      lo que constituye una transferencia fuera del EEE en virtud del Capítulo V del RGPD. Estas
+      transferencias se basan en el Art. 49(1)(b) RGPD (necesaria para ejecutar la emisión del
+      certificado que has solicitado) y, cuando proceda, en la certificación de las empresas conforme
+      al «Data Privacy Framework» UE-EE. UU. y/o en las Cláusulas Contractuales Tipo.
+      <code>allorigins.win</code> es un relé público gratuito con el que no tenemos ningún acuerdo de
+      tratamiento, utilizado únicamente para una comprobación de archivo HTTP de mejor esfuerzo que
+      puedes omitir.
+    </p>
+
+    <h2>5. Qué se almacena en tu navegador</h2>
+    <p>
+      Para permitirte reanudar una verificación iniciada, almacenamos en tu dispositivo (no en nuestro
+      servidor) durante un máximo de 7 días: en <code>localStorage</code> los dominios, el correo
+      opcional y el pedido; en <code>IndexedDB</code> la clave de la cuenta ACME como una clave
+      <strong>no extraíble</strong> que no puede volver a leerse. Las preferencias de la interfaz
+      (idioma, tema) se almacenan por separado. Sin cookies. Al borrar los datos del sitio se elimina
+      todo. Este almacenamiento es estrictamente necesario/funcional (ePrivacy), por lo que
+      <strong>no requiere consentimiento ni banner de cookies</strong>.
+    </p>
+
+    <h2>6. Tus derechos</h2>
+    <p>
+      No conservamos ningún dato del lado del servidor, por lo que ejerces el acceso y la supresión
+      borrando los datos de tu navegador. En cuanto al correo electrónico transmitido a Let's Encrypt,
+      contacta con ISRG como responsable independiente. Tienes derecho a presentar una reclamación
+      ante la autoridad de control polaca (Prezes UODO).
+    </p>
+
+    <footer>
+      Certownia es un proyecto de código abierto. No está afiliado a, patrocinado por, ni respaldado
+      por Let's Encrypt ni ISRG. Let's Encrypt es un servicio gratuito y una marca registrada de ISRG.
+    </footer>
+  </body>
+</html>
