@@ -11,11 +11,9 @@ import {
   type ChallengeType,
 } from "./lib/acme.js";
 import {
-  exportAccountKeyJwk,
   exportPrivateKeyPem,
   generateAccountKey,
   generateCertKey,
-  importAccountKey,
   type CertKeyType,
 } from "./lib/crypto.js";
 import { csrToAcmeBase64url } from "./lib/csr.js";
@@ -28,6 +26,7 @@ import {
   saveSession,
   type PersistedSession,
 } from "./lib/session.js";
+import { getAccountKey, putAccountKey } from "./lib/idb.js";
 import { checkHttpFile, checkTxt, lookupNs } from "./lib/doh.js";
 import { detectProvider, type ProviderInfo } from "./lib/providers.js";
 
@@ -1057,7 +1056,14 @@ async function resumeSession(): Promise<void> {
   goto("work");
   setLog("resume.restoring", "active");
   try {
-    const accountKey = await importAccountKey(s.accountKeyJwk);
+    const accountKey = await getAccountKey();
+    if (!accountKey) {
+      // The account key is gone (storage cleared/blocked) — can't resume safely.
+      clearSession();
+      pendingSession = null;
+      goto("config");
+      return;
+    }
     const client = new AcmeClient(s.config.env, accountKey, ACME_PROXY);
     await client.init();
     await client.createAccount(s.config.email || undefined);
@@ -1103,6 +1109,27 @@ function fail(e: unknown): void {
   goto("error");
 }
 
+// Persist the pending session so the tab can be closed and resumed later. The
+// account key goes to IndexedDB as a non-extractable CryptoKey; the domains,
+// order and challenges go to localStorage. Best-effort: if storage is
+// unavailable the flow still completes, only resume is lost.
+async function persistSession(orderUrl: string): Promise<void> {
+  if (!state.config || !state.accountKey || !state.order) return;
+  try {
+    await putAccountKey(state.accountKey);
+    saveSession({
+      config: state.config,
+      order: state.order,
+      orderUrl,
+      challenges: state.challenges,
+      recordChanged,
+    });
+    pendingSession = loadSession();
+  } catch {
+    /* persistence is best-effort */
+  }
+}
+
 async function runSetup(): Promise<void> {
   const cfg = state.config!;
   resetEnrichment();
@@ -1145,15 +1172,7 @@ async function runSetup(): Promise<void> {
     } else {
       // Persist so the user can close the tab and return to the SAME record.
       if (state.client.pendingOrderUrl && state.accountKey && state.order) {
-        saveSession({
-          config: cfg,
-          accountKeyJwk: await exportAccountKeyJwk(state.accountKey),
-          order: state.order,
-          orderUrl: state.client.pendingOrderUrl,
-          challenges: state.challenges,
-          recordChanged,
-        });
-        pendingSession = loadSession();
+        await persistSession(state.client.pendingOrderUrl);
       }
       showChallenge();
     }
@@ -1229,15 +1248,7 @@ async function retryOrder(): Promise<void> {
       return;
     }
     if (state.client.pendingOrderUrl && state.order) {
-      saveSession({
-        config: cfg,
-        accountKeyJwk: await exportAccountKeyJwk(state.accountKey),
-        order: state.order,
-        orderUrl: state.client.pendingOrderUrl,
-        challenges: state.challenges,
-        recordChanged,
-      });
-      pendingSession = loadSession();
+      await persistSession(state.client.pendingOrderUrl);
     }
     showChallenge();
   } catch (e) {
@@ -1258,6 +1269,7 @@ async function runFinalize(): Promise<void> {
 
     setLog("work.downloading", "active");
     state.privateKeyPem = await exportPrivateKeyPem(state.certKey.privateKey);
+    state.certKey = null; // PEM captured — drop the extractable key from memory
     setLog("work.downloading", "done");
 
     clearSession(); // certificate issued — the pending session is done

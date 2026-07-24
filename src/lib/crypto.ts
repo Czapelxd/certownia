@@ -2,8 +2,11 @@
 // browser; private keys are created with crypto.subtle and never transmitted.
 //
 // Two independent key pairs are involved:
-//   - the ACME *account* key: always ECDSA P-256 (JWS alg ES256). Private key is
-//     non-extractable — it only signs API requests and never needs to leave.
+//   - the ACME *account* key: always ECDSA P-256 (JWS alg ES256). Its private
+//     key is NON-EXTRACTABLE — it only signs API requests and never needs to
+//     leave. To resume a pending challenge after a reload it is persisted as a
+//     live CryptoKey in IndexedDB (see idb.ts), so its raw material is never
+//     exposed to JS even at rest.
 //   - the *certificate* key: user's choice (EC P-256 / RSA 2048 / RSA 4096). Its
 //     private key IS extractable, because the user downloads it as PEM.
 
@@ -17,35 +20,19 @@ export function jwsAlg(key: CryptoKey): "ES256" | "RS256" {
 }
 
 /**
- * Generate the ACME account key pair (ECDSA P-256). Extractable so a pending
- * challenge can be persisted (see session.ts) and resumed with the SAME DNS/HTTP
- * value after a reload. The account key is not the certificate key and is never
- * transmitted; it stays in this browser's localStorage until the flow completes.
+ * Generate the ACME account key pair (ECDSA P-256). The private key is
+ * NON-EXTRACTABLE: it can sign JWS requests but its raw material can never be
+ * read back out — not by this code, not by an injected script. To resume a
+ * pending challenge with the SAME DNS/HTTP value after a reload, the live
+ * CryptoKeyPair is stored in IndexedDB (idb.ts), never as an exportable JWK.
+ * The public key stays exportable (WebCrypto always keeps public keys
+ * extractable), which is all the JWK thumbprint and newAccount need.
  */
 export function generateAccountKey(): Promise<CryptoKeyPair> {
-  return crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
+  return crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, [
     "sign",
     "verify",
   ]) as Promise<CryptoKeyPair>;
-}
-
-/** Export the account private key as a JWK (for session persistence). */
-export function exportAccountKeyJwk(kp: CryptoKeyPair): Promise<JsonWebKey> {
-  return crypto.subtle.exportKey("jwk", kp.privateKey);
-}
-
-/** Reconstruct an account key pair from a persisted private JWK. */
-export async function importAccountKey(jwk: JsonWebKey): Promise<CryptoKeyPair> {
-  const alg = { name: "ECDSA", namedCurve: "P-256" };
-  const privateKey = await crypto.subtle.importKey("jwk", jwk, alg, true, ["sign"]);
-  const publicKey = await crypto.subtle.importKey(
-    "jwk",
-    { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y },
-    alg,
-    true,
-    ["verify"],
-  );
-  return { privateKey, publicKey };
 }
 
 /** Generate the certificate key pair; private key is extractable for download. */

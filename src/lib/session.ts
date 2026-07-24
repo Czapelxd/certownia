@@ -1,13 +1,15 @@
-// Persist a pending verification in localStorage so the user can close the tab
-// and return to the SAME challenge (same DNS/HTTP value) instead of generating
-// fresh data. Cleared on success or an explicit fresh start.
+// Persist a pending verification so the user can close the tab and return to the
+// SAME challenge (same DNS/HTTP value) instead of generating fresh data. Cleared
+// on success or an explicit fresh start.
 //
-// What's stored: the config, the ACME account key (JWK), the order + its URL,
-// and the derived challenges. The account key is not the certificate key and is
-// never transmitted; the certificate key is never persisted.
+// Split by sensitivity: the config, order (+ its URL) and derived challenges live
+// in localStorage (this module); the ACME account KEY is stored separately as a
+// non-extractable CryptoKey in IndexedDB (idb.ts), so no key material is readable
+// at rest. The certificate key is never persisted.
 
 import type { AcmeEnv, AcmeOrder, ChallengeInstruction, ChallengeType } from "./acme.js";
 import type { CertKeyType } from "./crypto.js";
+import { deleteAccountKey } from "./idb.js";
 
 const KEY = "certownia.session.v1";
 const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // Let's Encrypt orders live ~7 days
@@ -23,7 +25,6 @@ export interface PersistedConfig {
 export interface PersistedSession {
   savedAt: number;
   config: PersistedConfig;
-  accountKeyJwk: JsonWebKey;
   order: AcmeOrder;
   orderUrl: string;
   challenges: ChallengeInstruction[];
@@ -61,6 +62,8 @@ export function clearSession(): void {
   } catch {
     /* ignore */
   }
+  // Best-effort: also drop the account key from IndexedDB.
+  void deleteAccountKey().catch(() => {});
 }
 
 /** Flag the stored order as dead (a failed verify) so resume issues a fresh one. */

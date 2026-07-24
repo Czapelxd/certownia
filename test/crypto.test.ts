@@ -9,9 +9,7 @@ import {
 } from "../src/lib/base64.js";
 import {
   dns01Value,
-  exportAccountKeyJwk,
   generateAccountKey,
-  importAccountKey,
   jwkThumbprint,
   keyAuthorization,
 } from "../src/lib/crypto.js";
@@ -78,19 +76,23 @@ describe("JWK thumbprint (RFC 7638)", () => {
   });
 });
 
-describe("account key persistence (resume)", () => {
-  it("round-trips through a JWK with a stable thumbprint and usable private key", async () => {
+describe("account key (non-extractable; persisted as a live CryptoKey)", () => {
+  it("has a non-extractable private key that still signs, and an exportable public key", async () => {
     const kp = await generateAccountKey();
-    const original = await jwkThumbprint(kp.publicKey);
 
-    const restored = await importAccountKey(await exportAccountKeyJwk(kp));
+    // The security property: the private key can never be read back out. This is
+    // what makes storing it in IndexedDB (idb.ts) safe against XSS/extensions.
+    expect(kp.privateKey.extractable).toBe(false);
+    await expect(crypto.subtle.exportKey("jwk", kp.privateKey)).rejects.toThrow();
 
-    // Same thumbprint => same account => identical DNS/HTTP value after resume.
-    expect(await jwkThumbprint(restored.publicKey)).toBe(original);
-    // The restored private key must still sign ACME requests (ES256, 64-byte raw).
+    // The public key stays exportable, so the JWK thumbprint (and thus the
+    // DNS/HTTP challenge value) is still derivable after a resume.
+    expect(await jwkThumbprint(kp.publicKey)).toMatch(/^[A-Za-z0-9_-]{43}$/);
+
+    // And the private key must still sign ACME requests (ES256, 64-byte raw).
     const sig = await crypto.subtle.sign(
       { name: "ECDSA", hash: "SHA-256" },
-      restored.privateKey,
+      kp.privateKey,
       new TextEncoder().encode("payload"),
     );
     expect(sig.byteLength).toBe(64);
