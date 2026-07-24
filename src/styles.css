@@ -871,10 +871,62 @@ input:focus-visible {
   font-size: 0.76rem;
   color: var(--muted);
 }
+.dl .dl-hint {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.4;
+}
 .dl.primary {
   grid-column: 1 / -1;
   border-color: color-mix(in srgb, var(--success-fill) 50%, transparent);
   background: var(--success-soft);
+}
+
+/* step-by-step done screen */
+.step {
+  font-family: var(--font-mono);
+  font-size: 0.98rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 30px 0 8px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+}
+.step-body {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  margin: 0 0 14px;
+}
+.filemap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.maprow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+.maprow .mapfield {
+  font-weight: 500;
+  color: var(--ink);
+}
+.maprow .maparrow {
+  color: var(--muted);
+}
+.filemap code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  padding: 2px 9px;
+  border-radius: 7px;
 }
 
 .callout {

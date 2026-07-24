@@ -118,23 +118,45 @@ const pl: Dict = {
   "resume.discard": "Zacznij od nowa",
   "resume.restoring": "Wczytuję zapisaną weryfikację…",
 
-  "done.title": "Gotowe! Twój certyfikat jest gotowy",
+  "done.title": "Gotowe! Masz swój certyfikat SSL",
   "done.subtitle":
-    "Pobierz pliki poniżej. Zainstaluj je na serwerze zgodnie z instrukcją swojego hostingu.",
+    "Poniżej krok po kroku: co pobrać i gdzie dokładnie to wkleić. Nie musisz znać się na kryptografii — wystarczy dopasować pliki do pól w panelu.",
   "done.staging.warning":
     "To jest certyfikat TESTOWY (staging) — przeglądarki go nie zaufają. Gdy wszystko działa, wróć i wygeneruj certyfikat produkcyjny.",
-  "done.dl.key": "Klucz prywatny (privkey.pem)",
-  "done.dl.cert": "Certyfikat (cert.pem)",
-  "done.dl.chain": "Łańcuch pośredni (chain.pem)",
-  "done.dl.fullchain": "Pełny łańcuch (fullchain.pem)",
+
+  "done.step1": "Krok 1 · Pobierz pliki",
+  "done.step1.body":
+    "To zwykłe pliki tekstowe (.pem). Nie zawsze potrzebujesz wszystkich — którego użyć, podpowiadamy w kroku 2.",
+  "done.dl.key": "Klucz prywatny",
+  "done.dl.key.h": "Tajny — trzymaj u siebie, nikomu nie wysyłaj.",
+  "done.dl.cert": "Sam certyfikat",
+  "done.dl.cert.h": "Certyfikat Twojej domeny.",
+  "done.dl.chain": "Łańcuch / Root CA",
+  "done.dl.chain.h": "Certyfikaty pośrednie urzędu.",
+  "done.dl.fullchain": "Certyfikat + łańcuch razem",
+  "done.dl.fullchain.h": "Jeden plik: certyfikat i łańcuch. Częsty w Nginx i gdy panel prosi o „fullchain”.",
+
+  "done.step2": "Krok 2 · Wgraj pliki w panelu hostingu",
+  "done.step2.body":
+    "Wejdź w panel swojego hostingu → sekcja „SSL” lub „Certyfikaty”. Zobaczysz pola do wklejenia. Dopasuj pliki do pól po nazwie:",
+  "done.map.key": "Pole „Klucz prywatny” (Private Key)",
+  "done.map.cert": "Pole „Certyfikat” (Certificate)",
+  "done.map.chain": "Pole „Certyfikat Root CA”, „CA” albo „łańcuch”",
+  "done.map.fullchain":
+    "Panel ma tylko jedno pole na certyfikat albo prosi o „fullchain”? Wtedy zamiast cert.pem i chain.pem użyj samego fullchain.pem.",
+  "done.step2.how":
+    "Każdy plik otwórz w Notatniku, zaznacz i skopiuj CAŁĄ zawartość — razem z liniami „-----BEGIN…” i „-----END…” — i wklej w odpowiednie pole. Na końcu zapisz. Certyfikat zwykle zaczyna działać od razu (czasem trzeba chwilę poczekać).",
+  "done.secret":
+    "Klucz prywatny (privkey.pem) jest tajny — trzymaj go u siebie i nigdy nikomu nie wysyłaj ani nie wklejaj w obce miejsca.",
+
   "done.expiry":
-    "Certyfikat jest ważny 90 dni. Zapisz przypomnienie o odnowieniu — a najlepiej zautomatyzuj odnawianie na serwerze.",
-  "done.whatnow": "Co dalej?",
+    "Certyfikat jest ważny 90 dni — potem trzeba go odnowić. Ustaw sobie przypomnienie, albo (jeśli masz własny serwer) zautomatyzuj to jak niżej.",
+  "done.whatnow": "Masz własny serwer (VPS)?",
   "done.whatnow.body":
-    "Na serwerze użyj fullchain.pem jako certyfikatu i privkey.pem jako klucza prywatnego. W Apache to SSLCertificateFile i SSLCertificateKeyFile, w Nginx ssl_certificate i ssl_certificate_key.",
-  "cmd.title": "Automatyczne odnawianie na serwerze",
+    "W konfiguracji wskaż: certyfikat = fullchain.pem, klucz prywatny = privkey.pem. W Nginx to ssl_certificate i ssl_certificate_key, w Apache SSLCertificateFile i SSLCertificateKeyFile.",
+  "cmd.title": "Automatyczne odnawianie (opcjonalnie)",
   "cmd.body":
-    "Certyfikat z przeglądarki jest jednorazowy (wygasa za 90 dni). Żeby odnawiał się sam, uruchom na swoim serwerze certbota albo acme.sh:",
+    "Ten certyfikat wygasa za 90 dni. Jeśli masz własny serwer, zamiast odnawiać ręcznie co 3 miesiące ustaw automat — uruchom na serwerze certbota albo acme.sh:",
   "cmd.autorenew.http":
     "Ta komenda (weryfikacja przez plik / webroot) odnawia się automatycznie — certbot i acme.sh same dodają zadanie odnawiania.",
   "cmd.autorenew.dns":
@@ -276,23 +298,45 @@ const en: Dict = {
   "resume.discard": "Start over",
   "resume.restoring": "Restoring saved verification…",
 
-  "done.title": "Done! Your certificate is ready",
+  "done.title": "Done! Your SSL certificate is ready",
   "done.subtitle":
-    "Download the files below. Install them on your server following your host's instructions.",
+    "Step by step below: what to download and exactly where to paste it. You don't need to understand cryptography — just match the files to the fields in your panel.",
   "done.staging.warning":
     "This is a TEST (staging) certificate — browsers will not trust it. Once everything works, come back and issue a production certificate.",
-  "done.dl.key": "Private key (privkey.pem)",
-  "done.dl.cert": "Certificate (cert.pem)",
-  "done.dl.chain": "Intermediate chain (chain.pem)",
-  "done.dl.fullchain": "Full chain (fullchain.pem)",
+
+  "done.step1": "Step 1 · Download the files",
+  "done.step1.body":
+    "These are plain text files (.pem). You don't always need all of them — step 2 tells you which to use.",
+  "done.dl.key": "Private key",
+  "done.dl.key.h": "Secret — keep it to yourself, never send it to anyone.",
+  "done.dl.cert": "Certificate only",
+  "done.dl.cert.h": "Your domain's certificate.",
+  "done.dl.chain": "Chain / Root CA",
+  "done.dl.chain.h": "The authority's intermediate certificates.",
+  "done.dl.fullchain": "Certificate + chain together",
+  "done.dl.fullchain.h": "One file: certificate and chain. Common in Nginx and when a panel asks for “fullchain”.",
+
+  "done.step2": "Step 2 · Add the files in your hosting panel",
+  "done.step2.body":
+    "Open your hosting panel → the “SSL” or “Certificates” section. You'll see fields to paste into. Match the files to the fields by name:",
+  "done.map.key": "“Private key” field",
+  "done.map.cert": "“Certificate” field",
+  "done.map.chain": "“Root CA”, “CA” or “chain” field",
+  "done.map.fullchain":
+    "Panel has only one certificate field or asks for “fullchain”? Then use fullchain.pem instead of cert.pem and chain.pem.",
+  "done.step2.how":
+    "Open each file in a text editor, select and copy the WHOLE contents — including the “-----BEGIN…” and “-----END…” lines — and paste it into the right field. Then save. The certificate usually works right away (sometimes after a short wait).",
+  "done.secret":
+    "The private key (privkey.pem) is secret — keep it to yourself and never send it or paste it anywhere untrusted.",
+
   "done.expiry":
-    "The certificate is valid for 90 days. Set a renewal reminder — or better, automate renewal on your server.",
-  "done.whatnow": "What now?",
+    "The certificate is valid for 90 days — then it must be renewed. Set a reminder, or (if you run your own server) automate it as below.",
+  "done.whatnow": "Running your own server (VPS)?",
   "done.whatnow.body":
-    "On your server use fullchain.pem as the certificate and privkey.pem as the private key. In Apache that's SSLCertificateFile and SSLCertificateKeyFile; in Nginx ssl_certificate and ssl_certificate_key.",
-  "cmd.title": "Automatic renewal on your server",
+    "In the config point: certificate = fullchain.pem, private key = privkey.pem. In Nginx that's ssl_certificate and ssl_certificate_key; in Apache SSLCertificateFile and SSLCertificateKeyFile.",
+  "cmd.title": "Automatic renewal (optional)",
   "cmd.body":
-    "The browser certificate is one-off (expires in 90 days). To renew it automatically, run certbot or acme.sh on your server:",
+    "This certificate expires in 90 days. If you run your own server, instead of renewing by hand every 3 months set up automation — run certbot or acme.sh on your server:",
   "cmd.autorenew.http":
     "This command (file / webroot method) renews automatically — certbot and acme.sh set up the renewal job themselves.",
   "cmd.autorenew.dns":

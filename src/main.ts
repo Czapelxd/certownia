@@ -672,13 +672,21 @@ function setRecordStatus(key: string, status: string): void {
 }
 
 // ---------------------------------------------------------------- done view
-function downloadTile(cls: string, title: string, file: string, content: string): HTMLElement {
+function downloadTile(
+  cls: string,
+  title: string,
+  file: string,
+  content: string,
+  hint?: string,
+): HTMLElement {
+  const meta: (Node | string)[] = [
+    el("span", { class: "dl-title", style: "display:block" }, [title]),
+    el("span", { class: "dl-file" }, [file]),
+  ];
+  if (hint) meta.push(el("span", { class: "dl-hint" }, [hint]));
   const btn = el("button", { class: cls, type: "button" }, [
     icon(ICON.download, "dl-ic"),
-    el("span", {}, [
-      el("span", { class: "dl-title", style: "display:block" }, [title]),
-      el("span", { class: "dl-file" }, [file]),
-    ]),
+    el("span", {}, meta),
   ]);
   btn.addEventListener("click", () => downloadText(file, content, "application/x-pem-file"));
   return btn;
@@ -739,6 +747,14 @@ function renderAutomationSection(): HTMLElement {
   ]);
 }
 
+function mapRow(field: string, file: string): HTMLElement {
+  return el("div", { class: "maprow" }, [
+    el("span", { class: "mapfield" }, [field]),
+    el("span", { class: "maparrow" }, ["→"]),
+    el("code", {}, [file]),
+  ]);
+}
+
 function renderDone(): HTMLElement {
   const b = state.bundle!;
   const staging = state.config!.env === "staging";
@@ -748,20 +764,43 @@ function renderDone(): HTMLElement {
     el("p", { class: "sub" }, [t("done.subtitle")]),
   ];
   if (staging) {
-    panelChildren.push(el("div", { class: "callout warn", style: "margin-bottom:18px" }, [t("done.staging.warning")]));
+    panelChildren.push(
+      el("div", { class: "callout warn", style: "margin-bottom:8px" }, [t("done.staging.warning")]),
+    );
   }
+
   panelChildren.push(
+    // Step 1 — download the files
+    el("h3", { class: "step" }, [t("done.step1")]),
+    el("p", { class: "step-body" }, [t("done.step1.body")]),
     el("div", { class: "downloads" }, [
-      downloadTile("dl primary", t("done.dl.fullchain"), "fullchain.pem", b.fullchain),
-      downloadTile("dl", t("done.dl.key"), "privkey.pem", state.privateKeyPem),
-      downloadTile("dl", t("done.dl.cert"), "cert.pem", b.cert),
-      downloadTile("dl", t("done.dl.chain"), "chain.pem", b.chain),
+      downloadTile("dl primary", t("done.dl.fullchain"), "fullchain.pem", b.fullchain, t("done.dl.fullchain.h")),
+      downloadTile("dl", t("done.dl.key"), "privkey.pem", state.privateKeyPem, t("done.dl.key.h")),
+      downloadTile("dl", t("done.dl.cert"), "cert.pem", b.cert, t("done.dl.cert.h")),
+      downloadTile("dl", t("done.dl.chain"), "chain.pem", b.chain, t("done.dl.chain.h")),
     ]),
-    el("div", { class: "callout" }, [
+
+    // Step 2 — install in the hosting panel (file → field mapping)
+    el("h3", { class: "step" }, [t("done.step2")]),
+    el("p", { class: "step-body" }, [t("done.step2.body")]),
+    el("div", { class: "filemap" }, [
+      mapRow(t("done.map.key"), "privkey.pem"),
+      mapRow(t("done.map.cert"), "cert.pem"),
+      mapRow(t("done.map.chain"), "chain.pem"),
+    ]),
+    el("div", { class: "callout info", style: "margin:12px 0" }, [t("done.map.fullchain")]),
+    el("p", { class: "step-body" }, [t("done.step2.how")]),
+    el("div", { class: "callout warn" }, [t("done.secret")]),
+
+    // Own server (VPS)
+    el("div", { class: "callout", style: "margin-top:18px" }, [
       el("h4", {}, [t("done.whatnow")]),
       el("p", { style: "margin:0" }, [t("done.whatnow.body")]),
     ]),
+
+    // Automatic renewal (certbot / acme.sh)
     renderAutomationSection(),
+
     el("p", { class: "note", style: "margin-top:18px" }, [t("done.expiry")]),
     el("div", { class: "form-actions" }, [
       el("button", { class: "btn btn-ghost", type: "button", onclick: resetFlow }, [t("done.again")]),
