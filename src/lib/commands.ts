@@ -34,6 +34,19 @@ export function buildCertbot(
   return parts.join(" ");
 }
 
+/**
+ * certbot with the Cloudflare DNS plugin — issues AND renews UNATTENDED (certbot
+ * adds/removes the TXT record via the provider API). Example for the renewal
+ * guide; other providers have their own plugin (dns-ovh, dns-google, …).
+ */
+export function buildCertbotDnsCloudflare(domains: string[], email?: string): string {
+  const parts = ["certbot", "certonly", "--agree-tos"];
+  parts.push(email ? `-m ${shq(email)}` : "--register-unsafely-without-email");
+  parts.push("--dns-cloudflare", "--dns-cloudflare-credentials", "~/.secrets/cloudflare.ini");
+  parts.push(dFlags(domains));
+  return parts.join(" ");
+}
+
 /** acme.sh --issue command matching the chosen challenge/environment. */
 export function buildAcmeSh(domains: string[], challenge: CmdChallenge, staging: boolean): string {
   const parts = ["acme.sh", "--issue", "--server", staging ? "letsencrypt_test" : "letsencrypt"];

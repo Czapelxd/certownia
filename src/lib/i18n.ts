@@ -159,13 +159,27 @@ const pl: Dict = {
   "done.whatnow": "Masz własny serwer (VPS)?",
   "done.whatnow.body":
     "W konfiguracji wskaż: certyfikat = fullchain.pem, klucz prywatny = privkey.pem. W Nginx to ssl_certificate i ssl_certificate_key, w Apache SSLCertificateFile i SSLCertificateKeyFile.",
-  "cmd.title": "Automatyczne odnawianie (opcjonalnie)",
-  "cmd.body":
-    "Ten certyfikat wygasa za 90 dni. Jeśli masz własny serwer, zamiast odnawiać ręcznie co 3 miesiące ustaw automat — uruchom na serwerze certbota albo acme.sh:",
-  "cmd.autorenew.http":
-    "Ta komenda (weryfikacja przez plik / webroot) odnawia się automatycznie — certbot i acme.sh same dodają zadanie odnawiania.",
-  "cmd.autorenew.dns":
-    "Uwaga: ta komenda (ręczna weryfikacja DNS) wystawia certyfikat jednorazowo i NIE odnawia się sama. Żeby odnawiał się automatycznie, zamiast trybu ręcznego użyj wtyczki API swojego dostawcy DNS — np. „certbot --dns-cloudflare …” albo „acme.sh --dns dns_cf …”.",
+  "alt.title": "Wolisz terminal? Zrób to na serwerze",
+  "alt.body":
+    "To samo, ale komendą na Twoim serwerze: certbot (albo acme.sh) poprosi Cię o dodanie rekordu TXT — dokładnie tak samo jak w kreatorze wyżej — i wyda certyfikat. Podmień tylko example.com na swoją domenę.",
+  "alt.note":
+    "To komenda jednorazowa. Jak sprawić, żeby certyfikat odnawiał się sam, opisujemy na ekranie końcowym — po jego wygenerowaniu.",
+
+  "renew.title": "Jak sprawić, żeby certyfikat odnawiał się sam",
+  "renew.body":
+    "Certyfikat jest ważny 90 dni. Zamiast robić to ręcznie co 3 miesiące, wybierz swoją sytuację:",
+  "renew.shared.title": "Hosting współdzielony (cyberFolks, OVH, nazwa.pl…)",
+  "renew.shared.body":
+    "Najprościej: w panelu hostingu jest zwykle darmowy, samoodnawiający się certyfikat SSL (Let's Encrypt / AutoSSL). Włączasz go raz i masz spokój — szukaj sekcji „SSL” albo „Certyfikaty”. Wtedy nie potrzebujesz ani certbota, ani Certowni.",
+  "renew.vps.title": "Masz własny serwer (VPS) i chcesz pełny automat?",
+  "renew.vps.body":
+    "Użyj certbota — sam odnawia certyfikat co jakiś czas. Wybierz metodę. W komendach jest już „--deploy-hook”, żeby serwer przeładował nowy certyfikat po odnowieniu — zamień „nginx” na „apache2”, jeśli używasz Apache:",
+  "renew.webroot.label":
+    "1) Strona działa po HTTP — metoda „webroot” (podmień /var/www/html na katalog swojej strony):",
+  "renew.dns.label":
+    "2) Wildcard albo brak dostępu po HTTP — przez API dostawcy DNS (przykład dla Cloudflare):",
+  "renew.dns.steps":
+    "Zainstaluj wtyczkę dostawcy (np. python3-certbot-dns-cloudflare), zapisz token API w pliku ~/.secrets/cloudflare.ini i uruchom. Inny dostawca = inna wtyczka (dns-ovh, dns-google itd.).",
   "done.again": "Wygeneruj kolejny",
 
   "err.title": "Coś poszło nie tak",
@@ -346,13 +360,27 @@ const en: Dict = {
   "done.whatnow": "Running your own server (VPS)?",
   "done.whatnow.body":
     "In the config point: certificate = fullchain.pem, private key = privkey.pem. In Nginx that's ssl_certificate and ssl_certificate_key; in Apache SSLCertificateFile and SSLCertificateKeyFile.",
-  "cmd.title": "Automatic renewal (optional)",
-  "cmd.body":
-    "This certificate expires in 90 days. If you run your own server, instead of renewing by hand every 3 months set up automation — run certbot or acme.sh on your server:",
-  "cmd.autorenew.http":
-    "This command (file / webroot method) renews automatically — certbot and acme.sh set up the renewal job themselves.",
-  "cmd.autorenew.dns":
-    "Note: this command (manual DNS validation) issues the certificate once and does NOT auto-renew. For automatic renewal, replace the manual mode with your DNS provider's API plugin — e.g. “certbot --dns-cloudflare …” or “acme.sh --dns dns_cf …”.",
+  "alt.title": "Prefer the terminal? Do it on your server",
+  "alt.body":
+    "The same thing, but as a command on your server: certbot (or acme.sh) will ask you to add a TXT record — exactly like the wizard above — and issue the certificate. Just swap example.com for your domain.",
+  "alt.note":
+    "This is a one-off command. How to make the certificate renew itself is covered on the final screen, after you generate it.",
+
+  "renew.title": "How to make the certificate renew itself",
+  "renew.body":
+    "The certificate is valid for 90 days. Instead of doing this by hand every 3 months, pick your situation:",
+  "renew.shared.title": "Shared hosting (cyberFolks, OVH, nazwa.pl…)",
+  "renew.shared.body":
+    "Easiest: your hosting panel usually has a free, self-renewing SSL certificate (Let's Encrypt / AutoSSL). Enable it once and you're done — look for an “SSL” or “Certificates” section. Then you need neither certbot nor Certownia.",
+  "renew.vps.title": "Have your own server (VPS) and want full automation?",
+  "renew.vps.body":
+    "Use certbot — it renews the certificate on its own. Pick a method. The commands already include “--deploy-hook” so the server reloads the new certificate after renewal — change “nginx” to “apache2” if you use Apache:",
+  "renew.webroot.label":
+    "1) Site served over HTTP — the “webroot” method (replace /var/www/html with your site's directory):",
+  "renew.dns.label":
+    "2) Wildcard or no HTTP access — via your DNS provider's API (Cloudflare example):",
+  "renew.dns.steps":
+    "Install your provider's plugin (e.g. python3-certbot-dns-cloudflare), save an API token in ~/.secrets/cloudflare.ini, then run. A different provider = a different plugin (dns-ovh, dns-google, etc.).",
   "done.again": "Generate another",
 
   "err.title": "Something went wrong",

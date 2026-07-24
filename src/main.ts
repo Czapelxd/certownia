@@ -19,7 +19,7 @@ import {
   type CertKeyType,
 } from "./lib/crypto.js";
 import { csrToAcmeBase64url } from "./lib/csr.js";
-import { buildAcmeSh, buildCertbot } from "./lib/commands.js";
+import { buildAcmeSh, buildCertbot, buildCertbotDnsCloudflare } from "./lib/commands.js";
 import { copyToClipboard, downloadText } from "./lib/download.js";
 import { clearSession, loadSession, saveSession, type PersistedSession } from "./lib/session.js";
 import { checkTxt, lookupNs } from "./lib/doh.js";
@@ -296,6 +296,7 @@ function renderHero(): HTMLElement {
       el("div", {}, [el("h3", {}, [t("hero.trust.title")]), el("p", {}, [t("hero.trust.body")])]),
     ]),
     el("div", { class: "how" }, how),
+    renderCliAlternative(),
   ]);
   if (pendingSession) section.prepend(renderResumeBanner());
   return section;
@@ -777,15 +778,9 @@ function downloadTile(
   return btn;
 }
 
-// "Automate renewal on your server" — a certbot / acme.sh command generator,
-// since the one-off browser flow can't auto-renew. Pure client-side, no backend.
-function renderAutomationSection(): HTMLElement {
-  const cfg = state.config!;
-  const staging = cfg.env === "staging";
-  const cmds: Record<string, string> = {
-    certbot: buildCertbot(cfg.domains, cfg.challenge, staging, cfg.email || undefined),
-    acmesh: buildAcmeSh(cfg.domains, cfg.challenge, staging),
-  };
+// Reusable certbot ⇄ acme.sh command toggle with a copy button.
+function cmdToggle(certbot: string, acmesh: string): HTMLElement {
+  const cmds: Record<string, string> = { certbot, acmesh };
   let current = "certbot";
 
   const codeEl = el("code", {}, [cmds.certbot]);
@@ -821,13 +816,46 @@ function renderAutomationSection(): HTMLElement {
     tabs.append(btn);
   });
 
+  return el("div", {}, [tabs, field]);
+}
+
+// Landing-page alternative: the same one-off issuance straight from the terminal
+// (it also prompts for a manual DNS record — so it's a real alternative path).
+function renderCliAlternative(): HTMLElement {
+  const certbot = buildCertbot(["example.com"], "dns-01", false);
+  const acmesh = buildAcmeSh(["example.com"], "dns-01", false);
+  return el("section", { class: "cli-alt" }, [
+    el("h3", {}, [t("alt.title")]),
+    el("p", { class: "cli-alt-body" }, [t("alt.body")]),
+    cmdToggle(certbot, acmesh),
+    el("p", { class: "note", style: "margin:10px 0 0" }, [t("alt.note")]),
+  ]);
+}
+
+// Done screen: how to make the certificate renew itself (shared hosting vs VPS).
+function renderRenewalGuide(): HTMLElement {
+  const cfg = state.config!;
+  const email = cfg.email || undefined;
+  // certonly renews the files but doesn't reload the web server — a deploy hook
+  // does. nginx is the common default; the copy tells Apache users to swap it.
+  const hook = ' --deploy-hook "systemctl reload nginx"';
+  const webroot = buildCertbot(cfg.domains, "http-01", false, email) + hook;
+  const dns = buildCertbotDnsCloudflare(cfg.domains, email) + hook;
   return el("div", { class: "callout", style: "margin-top:18px" }, [
-    el("h4", {}, [t("cmd.title")]),
-    el("p", { style: "margin:0 0 4px" }, [t("cmd.body")]),
-    tabs,
-    field,
-    el("p", { class: "note", style: "margin:10px 0 0" }, [
-      t(cfg.challenge === "dns-01" ? "cmd.autorenew.dns" : "cmd.autorenew.http"),
+    el("h4", {}, [t("renew.title")]),
+    el("p", { style: "margin:0 0 14px" }, [t("renew.body")]),
+    el("div", { class: "renew-case" }, [
+      el("h5", {}, [t("renew.shared.title")]),
+      el("p", { style: "margin:0" }, [t("renew.shared.body")]),
+    ]),
+    el("div", { class: "renew-case" }, [
+      el("h5", {}, [t("renew.vps.title")]),
+      el("p", { style: "margin:0 0 10px" }, [t("renew.vps.body")]),
+      el("p", { class: "renew-method" }, [t("renew.webroot.label")]),
+      copyField(webroot),
+      el("p", { class: "renew-method" }, [t("renew.dns.label")]),
+      el("p", { class: "note", style: "margin:4px 0 6px" }, [t("renew.dns.steps")]),
+      copyField(dns),
     ]),
   ]);
 }
@@ -884,7 +912,7 @@ function renderDone(): HTMLElement {
     ]),
 
     // Automatic renewal (certbot / acme.sh)
-    renderAutomationSection(),
+    renderRenewalGuide(),
 
     el("p", { class: "note", style: "margin-top:18px" }, [t("done.expiry")]),
     el("div", { class: "form-actions" }, [

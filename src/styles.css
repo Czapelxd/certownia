@@ -993,6 +993,49 @@ input:focus-visible {
   border-color: var(--ink);
 }
 
+/* landing CLI alternative + done-screen renewal guide */
+.cli-alt {
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+.cli-alt h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.cli-alt-body {
+  margin: 0 0 14px;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+.renew-case {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.renew-case h5 {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--ink);
+}
+.renew-case p {
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+.renew-method {
+  font-size: 0.86rem;
+  color: var(--text);
+  margin: 14px 0 6px;
+  font-weight: 500;
+}
+
 /* resume banner */
 .resume {
   display: flex;

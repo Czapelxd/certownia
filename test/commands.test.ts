@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildAcmeSh, buildCertbot } from "../src/lib/commands.js";
+import { buildAcmeSh, buildCertbot, buildCertbotDnsCloudflare } from "../src/lib/commands.js";
 
 describe("buildCertbot", () => {
   it("DNS manual, staging, with email", () => {
@@ -32,6 +32,17 @@ describe("buildCertbot", () => {
     expect(buildCertbot(["example.com"], "dns-01", false, "a'b@example.com")).toContain(
       "-m 'a'\\''b@example.com'",
     );
+  });
+});
+
+describe("buildCertbotDnsCloudflare", () => {
+  it("uses the cloudflare DNS plugin + credentials and the domains", () => {
+    const c = buildCertbotDnsCloudflare(["example.com", "*.example.com"], "me@example.com");
+    expect(c).toContain("--dns-cloudflare --dns-cloudflare-credentials ~/.secrets/cloudflare.ini");
+    expect(c).toContain("-m 'me@example.com'");
+    expect(c).toContain("-d example.com");
+    expect(c).toContain("-d '*.example.com'");
+    expect(c).not.toContain("--manual");
   });
 });
 
