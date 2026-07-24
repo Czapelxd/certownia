@@ -109,6 +109,7 @@ export const fr: Dict = {
 
   "provider.detected": "Fournisseur DNS détecté : {0}",
   "provider.open": "Ouvrir le panneau {0}",
+  "provider.hostList": "Ouvrir le panneau de votre hébergeur…",
   "provider.generic": "Ajoutez l'enregistrement dans le panneau DNS de votre fournisseur de domaine.",
 
   "http.where.title": "Où placer le fichier",

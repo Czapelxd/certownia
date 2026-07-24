@@ -109,6 +109,7 @@ export const pl: Dict = {
 
   "provider.detected": "Wykryty dostawca DNS: {0}",
   "provider.open": "Otwórz panel {0}",
+  "provider.hostList": "Otwórz panel swojego hostingu…",
   "provider.generic": "Dodaj rekord w panelu DNS u swojego dostawcy domeny.",
 
   "http.where.title": "Gdzie wgrać plik",

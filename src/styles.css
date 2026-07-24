@@ -947,6 +947,31 @@ input:focus-visible {
 .provider a {
   color: var(--accent);
 }
+.host-select {
+  margin-top: 12px;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.host-select:hover {
+  border-color: var(--accent);
+}
+.host-select:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  box-shadow: var(--ring);
+}
+.host-select option {
+  background: var(--surface);
+  color: var(--ink);
+}
 .doh {
   display: flex;
   align-items: center;

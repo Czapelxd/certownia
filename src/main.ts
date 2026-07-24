@@ -28,7 +28,7 @@ import {
 } from "./lib/session.js";
 import { getAccountKey, putAccountKey } from "./lib/idb.js";
 import { checkHttpFile, checkTxt, lookupNs } from "./lib/doh.js";
-import { detectProvider, type ProviderInfo } from "./lib/providers.js";
+import { detectProvider, HOSTING_PANELS, type ProviderInfo } from "./lib/providers.js";
 
 const SOURCE_URL = "https://github.com/BAXY-IT/baxy-it-ssl";
 const BAXY_URL = "https://baxy.it";
@@ -807,11 +807,32 @@ async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
   }
 }
 
+// Dropdown of popular hosting/DNS panels — selecting one opens its login page.
+// Replaces the single "open the detected provider" link so the user can reach
+// their own host even when detection missed it.
+function hostingDropdown(): HTMLElement {
+  const sel = el("select", { class: "host-select", "aria-label": t("provider.hostList"), onchange: onHostSelect }, [
+    el("option", { value: "" }, [t("provider.hostList")]),
+    ...HOSTING_PANELS.map((h) => el("option", { value: h.url }, [h.name])),
+  ]);
+  return sel;
+}
+
+function onHostSelect(e: Event): void {
+  const sel = e.target as HTMLSelectElement;
+  const url = sel.value;
+  sel.value = ""; // reset to the placeholder so it can be used again
+  if (url) window.open(url, "_blank", "noopener");
+}
+
 function fillProviderNode(node: HTMLElement, info: ProviderInfo | null): void {
   node.style.display = "block";
   node.replaceChildren();
   if (!info) {
-    node.append(el("div", { style: "font-size:.86rem; color: var(--muted)" }, [t("provider.generic")]));
+    node.append(
+      el("div", { style: "font-size:.86rem; color: var(--muted)" }, [t("provider.generic")]),
+      hostingDropdown(),
+    );
     return;
   }
   node.append(
@@ -821,7 +842,7 @@ function fillProviderNode(node: HTMLElement, info: ProviderInfo | null): void {
       {},
       (info.steps[getLang()] ?? info.steps.en ?? []).map((s) => el("li", {}, [s])),
     ),
-    el("a", { href: info.url, target: "_blank", rel: "noopener" }, [t("provider.open", info.name)]),
+    hostingDropdown(),
   );
 }
 
