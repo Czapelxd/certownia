@@ -274,8 +274,22 @@ function renderFooter(): HTMLElement {
       ]),
     ]),
     el("div", { class: "foot-links" }, [
+      el(
+        "a",
+        { href: `${import.meta.env.BASE_URL}privacy.html`, target: "_blank", rel: "noopener" },
+        [t("footer.privacy")],
+      ),
+      el(
+        "a",
+        { href: `${import.meta.env.BASE_URL}terms.html`, target: "_blank", rel: "noopener" },
+        [t("footer.terms")],
+      ),
       el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener" }, [t("footer.source")]),
-      el("span", { class: "brand-tag" }, [t("app.poweredBy")]),
+      el(
+        "a",
+        { href: "https://letsencrypt.org", target: "_blank", rel: "noopener", class: "brand-tag" },
+        [t("app.poweredBy")],
+      ),
     ]),
     el("div", { class: "foot-note" }, [t("footer.notAffiliated")]),
   ]);
@@ -879,6 +893,7 @@ function renderCliAlternative(): HTMLElement {
     el("p", { class: "cli-alt-body" }, [t("alt.body")]),
     cmdToggle(certbot, acmesh),
     el("p", { class: "note", style: "margin:10px 0 0" }, [t("alt.note")]),
+    el("p", { class: "note", style: "margin:6px 0 0" }, [t("cmd.caveat")]),
     el("details", { class: "renew-details" }, [
       el("summary", {}, [t("alt.renewToggle")]),
       renderRenewalGuide(["example.com"]),

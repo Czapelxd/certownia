@@ -207,6 +207,9 @@ export const pt: Dict = {
   "footer.madeBy": "Um projeto open-source de",
   "footer.source": "Código-fonte",
   "footer.privacy": "Privacidade",
+  "footer.terms": "Termos",
+  "cmd.caveat":
+    "Execute-o no seu próprio servidor e por sua conta e risco — reveja-o primeiro. Inclui --agree-tos, que aceita os termos de Let's Encrypt em seu nome.",
   "footer.notAffiliated":
-    "A Certownia não está associada a Let's Encrypt nem à ISRG. “Let's Encrypt” é uma marca registada da ISRG.",
+    "A Certownia é um projeto open source, sem afiliação com Let's Encrypt ou ISRG, nem patrocínio ou aprovação. Let's Encrypt é um serviço gratuito e uma marca registada da ISRG.",
 };

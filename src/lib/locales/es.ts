@@ -207,6 +207,9 @@ export const es: Dict = {
   "footer.madeBy": "Un proyecto de código abierto de",
   "footer.source": "Código fuente",
   "footer.privacy": "Privacidad",
+  "footer.terms": "Términos",
+  "cmd.caveat":
+    "Ejecútalo en tu propio servidor y bajo tu responsabilidad — revísalo antes. Incluye --agree-tos, que acepta los términos de Let's Encrypt en tu nombre.",
   "footer.notAffiliated":
-    "Certownia no está afiliada a Let's Encrypt ni a ISRG. “Let's Encrypt” es una marca registrada de ISRG.",
+    "Certownia es un proyecto de código abierto y no está afiliada a Let's Encrypt ni ISRG, ni patrocinada o respaldada por ellos. Let's Encrypt es un servicio gratuito y una marca registrada de ISRG.",
 };

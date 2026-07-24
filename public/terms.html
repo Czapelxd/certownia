@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <title>Certownia — Regulamin / Terms of Use</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body {
+        margin: 0 auto; max-width: 760px; padding: 40px 20px 80px;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6; color: #1a1a1a; background: #f4efe6;
+      }
+      @media (prefers-color-scheme: dark) { body { color: #e6edf3; background: #0b1b2b; } }
+      h1 { font-size: 1.7rem; } h2 { font-size: 1.15rem; margin-top: 2em; }
+      a { color: #e91e63; } code { font-family: ui-monospace, monospace; font-size: .92em; }
+      .todo { background: #ffe8ef; color: #7a0b2e; border: 1px solid #e91e63; border-radius: 8px; padding: 12px 16px; margin: 18px 0; }
+      @media (prefers-color-scheme: dark) { .todo { background: #2b0f1a; color: #ffc2d4; } }
+      .ph { background: #ffd9e6; color: #7a0b2e; padding: 0 4px; border-radius: 3px; font-weight: 600; }
+      @media (prefers-color-scheme: dark) { .ph { background: #4a1626; color: #ffc2d4; } }
+      hr { border: none; border-top: 1px solid #0002; margin: 3em 0; }
+      @media (prefers-color-scheme: dark) { hr { border-top-color: #fff2; } }
+      .back { display: inline-block; margin-bottom: 24px; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="./">← Certownia</a>
+
+    <div class="todo">
+      <strong>SZABLON — do uzupełnienia i weryfikacji prawnej.</strong> Uzupełnij pola
+      <span class="ph">[[…]]</span> i skonsultuj z prawnikiem przed publikacją. / <em>TEMPLATE — fill
+      <span class="ph">[[…]]</span> and have a lawyer review before publishing.</em>
+    </div>
+
+    <h1>Regulamin korzystania</h1>
+    <p>Ostatnia aktualizacja: <span class="ph">[[DATA]]</span></p>
+
+    <h2>1. Operator usługi</h2>
+    <p>
+      Usługę Certownia udostępnia <span class="ph">[[PEŁNA NAZWA PRAWNA]]</span>, z siedzibą
+      <span class="ph">[[ADRES]]</span>, NIP <span class="ph">[[NIP]]</span>, kontakt:
+      <span class="ph">[[E-MAIL]]</span> (dalej „Operator”).
+    </p>
+
+    <h2>2. Czym jest Certownia</h2>
+    <p>
+      Certownia to darmowe, otwartoźródłowe narzędzie działające w całości w przeglądarce, które
+      pomaga wygenerować certyfikat SSL/TLS wystawiany przez Let's Encrypt. Operator nie jest
+      urzędem certyfikacji — certyfikaty wystawia Let's Encrypt (ISRG) na jej własnych warunkach.
+    </p>
+
+    <h2>3. Usługa „tak jak jest” (bez gwarancji)</h2>
+    <p>
+      Usługa jest dostarczana „tak jak jest” i „w miarę dostępności”, bez jakichkolwiek gwarancji —
+      w szczególności dostępności, ciągłości działania, poprawności ani przydatności wygenerowanego
+      certyfikatu lub podpowiadanych komend. W zakresie dopuszczalnym przez prawo Operator wyłącza
+      odpowiedzialność za szkody wynikłe z korzystania z usługi.
+    </p>
+
+    <h2>4. Twoja odpowiedzialność</h2>
+    <ul>
+      <li>Odpowiadasz za własne domeny, DNS i serwery oraz za posiadane do nich uprawnienia.</li>
+      <li>
+        Odpowiadasz za bezpieczne przechowanie pobranego klucza prywatnego
+        (<code>privkey.pem</code>). Zgubionego klucza nie da się odzyskać — nikt (w tym Operator) go
+        nie przechowuje.
+      </li>
+      <li>
+        Możesz wnioskować o certyfikat wyłącznie dla domen, które posiadasz lub kontrolujesz.
+        Próby uzyskania certyfikatu dla cudzych domen są zabronione.
+      </li>
+    </ul>
+
+    <h2>5. Ograniczenie odpowiedzialności</h2>
+    <p>
+      W maksymalnym zakresie dozwolonym prawem Operator nie ponosi odpowiedzialności za: błędnie
+      wystawiony lub odrzucony certyfikat, utratę lub ujawnienie klucza prywatnego, wyczerpanie
+      limitów Let's Encrypt, przerwy w działaniu ani skutki uruchomienia podpowiadanych komend.
+    </p>
+
+    <h2>6. Komendy certbot / acme.sh</h2>
+    <p>
+      Podpowiadane komendy uruchamiasz na własnym serwerze i na własne ryzyko. Sprawdź i dostosuj je
+      przed uruchomieniem (ścieżki, wtyczka dostawcy DNS). Komendy zawierają
+      <code>--agree-tos</code>, co oznacza akceptację Umowy Subskrybenta Let's Encrypt w Twoim
+      imieniu w chwili ich wykonania.
+    </p>
+
+    <hr />
+
+    <h1>Terms of Use</h1>
+    <p>Last updated: <span class="ph">[[DATE]]</span></p>
+
+    <h2>1. Service operator</h2>
+    <p>
+      Certownia is provided by <span class="ph">[[FULL LEGAL NAME]]</span>, registered at
+      <span class="ph">[[ADDRESS]]</span>, tax ID <span class="ph">[[NIP]]</span>, contact
+      <span class="ph">[[EMAIL]]</span> (the "Operator").
+    </p>
+
+    <h2>2. What Certownia is</h2>
+    <p>
+      Certownia is a free, open-source, browser-only tool that helps you obtain an SSL/TLS
+      certificate issued by Let's Encrypt. The Operator is not a certificate authority — certificates
+      are issued by Let's Encrypt (ISRG) under its own terms.
+    </p>
+
+    <h2>3. Service "as is" (no warranty)</h2>
+    <p>
+      The service is provided "as is" and "as available", without warranty of any kind — including
+      availability, uptime, correctness, or fitness of any certificate or suggested command. To the
+      extent permitted by law, the Operator disclaims liability for any damage arising from use of
+      the service.
+    </p>
+
+    <h2>4. Your responsibility</h2>
+    <ul>
+      <li>You are responsible for your own domains, DNS and servers and for your rights to them.</li>
+      <li>
+        You are responsible for securely storing the downloaded private key
+        (<code>privkey.pem</code>). A lost key cannot be recovered — nobody, including the Operator,
+        holds it.
+      </li>
+      <li>
+        You may request a certificate only for domains you own or control. Attempting to obtain a
+        certificate for domains you are not authorised for is prohibited.
+      </li>
+    </ul>
+
+    <h2>5. Limitation of liability</h2>
+    <p>
+      To the maximum extent permitted by law, the Operator is not liable for a misissued or rejected
+      certificate, a lost or leaked private key, Let's Encrypt rate-limit exhaustion, service
+      interruption, or the consequences of running any suggested command.
+    </p>
+
+    <h2>6. certbot / acme.sh commands</h2>
+    <p>
+      You run the suggested commands on your own server and at your own risk. Review and adapt them
+      first (paths, DNS-provider plugin). The commands include <code>--agree-tos</code>, which
+      accepts the Let's Encrypt Subscriber Agreement on your behalf when executed.
+    </p>
+  </body>
+</html>
