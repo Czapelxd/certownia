@@ -123,7 +123,7 @@ const pl: Dict = {
   "http.check": "Sprawdź, czy plik jest dostępny",
   "http.open": "Otwórz plik",
   "http.checkNote":
-    "Sprawdzanie automatyczne jest orientacyjne — plik pobiera zewnętrzny serwis (allorigins.win), bo przeglądarka sama go nie odczyta. Jeśli nie zadziała, kliknij „Otwórz plik” i sprawdź na oczy — otwarcie odblokuje „Zweryfikuj”.",
+    "Sprawdzanie automatyczne jest orientacyjne — plik pobiera zewnętrzny serwis (allorigins.win), bo przeglądarka sama go nie odczyta. Jeśli nie zadziała, kliknij „Otwórz plik”, sprawdź na oczy, że widać treść pliku, a potem kliknij „Zweryfikuj mimo to”.",
   "chal.verifyLockedHttp":
     "Przycisk „Zweryfikuj” odblokuje się, gdy wykryjemy plik. Kliknij „Sprawdź, czy plik jest dostępny” albo „Otwórz plik”.",
 
@@ -334,7 +334,7 @@ const en: Dict = {
   "http.check": "Check whether the file is reachable",
   "http.open": "Open the file",
   "http.checkNote":
-    "The automatic check is approximate — the file is fetched by a third-party relay (allorigins.win), since the browser can't read it directly. If it doesn't work, click “Open the file” and check it yourself — opening it unlocks “Verify”.",
+    "The automatic check is approximate — the file is fetched by a third-party relay (allorigins.win), since the browser can't read it directly. If it doesn't work, click “Open the file”, confirm you can see the file's content, then click “Verify anyway”.",
   "chal.verifyLockedHttp":
     "The “Verify” button unlocks once we detect the file. Click “Check whether the file is reachable” or “Open the file”.",
 

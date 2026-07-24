@@ -559,7 +559,9 @@ function renderChallenge(): HTMLElement {
       const openBtn = el("button", { type: "button", class: "btn btn-ghost" }, [t("http.open")]);
       openBtn.addEventListener("click", () => {
         window.open(c.httpUrl!, "_blank", "noopener,noreferrer");
-        verifyForced = true; // opening the file is the user's manual confirmation
+        // Don't blind-unlock (the user may have hit a 404): reveal the "verify
+        // anyway" override so unlocking is their explicit second action.
+        checkedPending = true;
         updateVerifyGate();
       });
       btns.append(dlBtn, openBtn);
@@ -734,7 +736,8 @@ async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
     }
   } finally {
     if (btn) {
-      btn.disabled = false;
+      // Stay disabled if a verification started while this check was in flight.
+      btn.disabled = verifying;
       btn.replaceChildren(document.createTextNode(checkLabel));
     }
   }
