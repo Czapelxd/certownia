@@ -97,7 +97,7 @@ const pl: Dict = {
     "Przycisk „Zweryfikuj” odblokuje się, gdy wykryjemy rekord w DNS. Dodaj rekord i kliknij „Sprawdź, czy rekord jest już widoczny”.",
   "chal.recordChanged":
     "Po nieudanej próbie wygenerowaliśmy świeży rekord. Nazwa jest taka sama, ale WARTOŚĆ się zmieniła — podmień ją w DNS, sprawdź propagację i dopiero wtedy weryfikuj.",
-  "chal.verifyAnyway": "Rekord dodany, a mimo to go nie wykrywamy? Zweryfikuj mimo to.",
+  "chal.verifyAnyway": "Na pewno dodane, a mimo to nie wykrywamy? Zweryfikuj mimo to.",
 
   "doh.check": "Sprawdź, czy rekord jest już widoczny",
   "doh.checking": "Sprawdzam DNS…",
@@ -116,6 +116,16 @@ const pl: Dict = {
   "http.where.title": "Gdzie wgrać plik",
   "http.where.body":
     "Umieść plik na serwerze WWW domeny tak, aby był dostępny dokładnie pod adresem powyżej — czyli w folderze .well-known/acme-challenge w głównym katalogu strony. Musi działać po HTTP (port 80).",
+  "httpcheck.checking": "Sprawdzam plik…",
+  "httpcheck.ok": "Plik widoczny — możesz weryfikować",
+  "httpcheck.pending": "Nie widać pliku (albo zła treść) — sprawdź i spróbuj ponownie",
+  "httpcheck.error": "Nie udało się sprawdzić automatycznie — otwórz plik ręcznie",
+  "http.check": "Sprawdź, czy plik jest dostępny",
+  "http.open": "Otwórz plik",
+  "http.checkNote":
+    "Sprawdzanie automatyczne jest orientacyjne — plik pobiera zewnętrzny serwis (allorigins.win), bo przeglądarka sama go nie odczyta. Jeśli nie zadziała, kliknij „Otwórz plik” i sprawdź na oczy — otwarcie odblokuje „Zweryfikuj”.",
+  "chal.verifyLockedHttp":
+    "Przycisk „Zweryfikuj” odblokuje się, gdy wykryjemy plik. Kliknij „Sprawdź, czy plik jest dostępny” albo „Otwórz plik”.",
 
   "resume.text": "Masz niedokończoną weryfikację dla {0}.",
   "resume.hint": "Możesz do niej wrócić — dane (rekord) są te same, nic nie trzeba dodawać od nowa.",
@@ -298,7 +308,7 @@ const en: Dict = {
     "The “Verify” button unlocks once we detect the record in DNS. Add the record, then click “Check whether the record is visible yet”.",
   "chal.recordChanged":
     "After the failed attempt we generated a fresh record. The name is the same, but the VALUE changed — replace it in DNS, check propagation, then verify.",
-  "chal.verifyAnyway": "Record added but we still don't detect it? Verify anyway.",
+  "chal.verifyAnyway": "Sure it's added but we still don't detect it? Verify anyway.",
 
   "doh.check": "Check whether the record is visible yet",
   "doh.checking": "Checking DNS…",
@@ -317,6 +327,16 @@ const en: Dict = {
   "http.where.title": "Where to put the file",
   "http.where.body":
     "Place the file on the domain's web server so it is reachable at exactly the URL above — i.e. the .well-known/acme-challenge folder in your site root. It must work over HTTP (port 80).",
+  "httpcheck.checking": "Checking the file…",
+  "httpcheck.ok": "File visible — you can verify now",
+  "httpcheck.pending": "File not found (or wrong content) — check and retry",
+  "httpcheck.error": "Couldn't check automatically — open the file manually",
+  "http.check": "Check whether the file is reachable",
+  "http.open": "Open the file",
+  "http.checkNote":
+    "The automatic check is approximate — the file is fetched by a third-party relay (allorigins.win), since the browser can't read it directly. If it doesn't work, click “Open the file” and check it yourself — opening it unlocks “Verify”.",
+  "chal.verifyLockedHttp":
+    "The “Verify” button unlocks once we detect the file. Click “Check whether the file is reachable” or “Open the file”.",
 
   "resume.text": "You have an unfinished verification for {0}.",
   "resume.hint": "You can return to it — the data (record) is the same, nothing to re-add.",

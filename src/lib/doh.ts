@@ -46,6 +46,24 @@ export async function checkTxt(name: string, expected: string): Promise<boolean>
   return (j.Answer ?? []).some((a) => unquoteTxt(String(a.data ?? "")) === expected);
 }
 
+/**
+ * Best-effort http-01 file check. The browser can't read the challenge file
+ * itself (it's served on :80 → mixed content from our HTTPS page, and the user's
+ * server sends no CORS header), so we ask a public relay to fetch it and compare
+ * the body. The http-01 file is public by design, so nothing secret is exposed;
+ * if the relay is unavailable this throws and the UI falls back to "open the file".
+ */
+export async function checkHttpFile(url: string, expected: string): Promise<boolean> {
+  // Cache-buster so the relay doesn't return a stale "miss" cached from before
+  // the file existed (static servers ignore the query string on the file path).
+  const target = `${url}${url.includes("?") ? "&" : "?"}cb=${Date.now()}`;
+  const relay = `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`;
+  const res = await fetch(relay, { cache: "no-store" });
+  if (!res.ok) throw new Error("relay failed");
+  // Let's Encrypt ignores TRAILING whitespace only — mirror that, not a full trim.
+  return (await res.text()).replace(/\s+$/, "") === expected;
+}
+
 /** Return the zone's NS hostnames (walks up to the apex; merges Authority). */
 export async function lookupNs(domain: string): Promise<string[]> {
   const base = domain.replace(/^\*\./, "");

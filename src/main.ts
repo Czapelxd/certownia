@@ -22,7 +22,7 @@ import { csrToAcmeBase64url } from "./lib/csr.js";
 import { buildAcmeSh, buildCertbot, buildCertbotDnsCloudflare } from "./lib/commands.js";
 import { copyToClipboard, downloadText } from "./lib/download.js";
 import { clearSession, loadSession, saveSession, type PersistedSession } from "./lib/session.js";
-import { checkTxt, lookupNs } from "./lib/doh.js";
+import { checkHttpFile, checkTxt, lookupNs } from "./lib/doh.js";
 import { detectProvider, type ProviderInfo } from "./lib/providers.js";
 
 const SOURCE_URL = "https://github.com/BAXY-IT/certownia";
@@ -122,15 +122,17 @@ function resetGate(): void {
   checkedPending = false;
 }
 
-// Verify is allowed once every record is visible in DNS ("ok"), or if we simply
-// can't reach the DoH resolvers ("error" → fail open), or the user forced it.
-// http-01 has no DoH gate.
+// Verify is allowed once every challenge is visible ("ok"), or the user forced
+// it. For DNS an "error" (both DoH resolvers unreachable — rare) also fails open;
+// for HTTP the check goes through a flaky relay, so "error" does NOT auto-open —
+// the user unblocks via "open the file" instead.
 function verifyAllowed(): boolean {
-  if (state.config?.challenge !== "dns-01") return true;
   if (verifyForced) return true;
+  const isDns = state.config?.challenge === "dns-01";
   return state.challenges.every((c) => {
     const s = dohStatus.get(statusKey(c));
-    return s === "ok" || s === "error";
+    if (s === "ok") return true;
+    return s === "error" && isDns;
   });
 }
 
@@ -548,19 +550,27 @@ function renderChallenge(): HTMLElement {
     }
     const children: (Node | string)[] = [head, el("div", { class: "kv" }, rows)];
     if (!isDns) {
-      const dlBtn = el("button", { type: "button", class: "btn btn-ghost", style: "margin-top:12px" }, [
+      const btns = el("div", { style: "display:flex; gap:8px; flex-wrap:wrap; margin-top:12px" });
+      const dlBtn = el("button", { type: "button", class: "btn btn-ghost" }, [
         icon(ICON.download),
         t("chal.http.download"),
       ]);
       dlBtn.addEventListener("click", () => downloadText(c.httpFilename!, c.httpContent!, "text/plain"));
-      children.push(dlBtn);
+      const openBtn = el("button", { type: "button", class: "btn btn-ghost" }, [t("http.open")]);
+      openBtn.addEventListener("click", () => {
+        window.open(c.httpUrl!, "_blank", "noopener,noreferrer");
+        verifyForced = true; // opening the file is the user's manual confirmation
+        updateVerifyGate();
+      });
+      btns.append(dlBtn, openBtn);
+      children.push(btns);
     }
+    // reachability / propagation status (both methods)
+    const dohNode = el("div", { class: "doh-status", "data-doh": key });
+    const cachedDoh = dohStatus.get(key);
+    if (cachedDoh) fillDohNode(dohNode, cachedDoh);
+    children.push(dohNode);
     if (isDns) {
-      const dohNode = el("div", { class: "doh-status", "data-doh": key });
-      const cachedDoh = dohStatus.get(key);
-      if (cachedDoh) fillDohNode(dohNode, cachedDoh);
-      children.push(dohNode);
-
       const provNode = el("div", { class: "provider", "data-provider": key, style: "display:none" });
       if (providerCache.has(key)) fillProviderNode(provNode, providerCache.get(key) ?? null);
       children.push(provNode);
@@ -583,6 +593,7 @@ function renderChallenge(): HTMLElement {
         el("h4", {}, [t("http.where.title")]),
         el("p", { style: "margin:0" }, [t("http.where.body")]),
       ]),
+      el("p", { class: "note" }, [t("http.checkNote")]),
     );
   }
   if (isDns) {
@@ -592,14 +603,12 @@ function renderChallenge(): HTMLElement {
   }
 
   const actions: (Node | string)[] = [];
-  if (isDns) {
-    const cBtn = el("button", { class: "btn btn-ghost btn-block", type: "button" }, [t("doh.check")]);
-    cBtn.addEventListener("click", () => void checkAllPropagation(cBtn));
-    checkBtn = cBtn;
-    actions.push(cBtn);
-  } else {
-    checkBtn = null;
-  }
+  const cBtn = el("button", { class: "btn btn-ghost btn-block", type: "button" }, [
+    isDns ? t("doh.check") : t("http.check"),
+  ]);
+  cBtn.addEventListener("click", () => void checkAllPropagation(cBtn));
+  checkBtn = cBtn;
+  actions.push(cBtn);
   const vBtn = el("button", { class: "btn btn-primary btn-block", type: "button" }, [
     t("chal.verify"),
     icon(ICON.arrow),
@@ -611,29 +620,24 @@ function renderChallenge(): HTMLElement {
     el("div", { style: "display:flex; flex-direction:column; gap:12px; margin-top:26px" }, actions),
   );
 
-  // DNS-only: keep Verify locked until DoH detects the record (see verifyAllowed),
+  // Keep Verify locked until the record/file is detected (see verifyAllowed),
   // with a "verify anyway" escape once a manual check is still not visible.
-  if (isDns) {
-    gateNote = el("p", { class: "note", style: "margin-top:10px; text-align:center" }, [
-      t("chal.verifyLocked"),
-    ]);
-    panelChildren.push(gateNote);
+  gateNote = el("p", { class: "note", style: "margin-top:10px; text-align:center" }, [
+    isDns ? t("chal.verifyLocked") : t("chal.verifyLockedHttp"),
+  ]);
+  panelChildren.push(gateNote);
 
-    const escapeLink = el("button", { type: "button", class: "linklike" }, [t("chal.verifyAnyway")]);
-    escapeLink.addEventListener("click", () => {
-      verifyForced = true;
-      updateVerifyGate();
-    });
-    escapeNote = el("p", { class: "note", style: "margin-top:6px; text-align:center; display:none" }, [
-      escapeLink,
-    ]);
-    panelChildren.push(escapeNote);
-
+  const escapeLink = el("button", { type: "button", class: "linklike" }, [t("chal.verifyAnyway")]);
+  escapeLink.addEventListener("click", () => {
+    verifyForced = true;
     updateVerifyGate();
-  } else {
-    gateNote = null;
-    escapeNote = null;
-  }
+  });
+  escapeNote = el("p", { class: "note", style: "margin-top:6px; text-align:center; display:none" }, [
+    escapeLink,
+  ]);
+  panelChildren.push(escapeNote);
+
+  updateVerifyGate();
 
   return el("section", { class: "view" }, [stepper(1), el("div", { class: "panel" }, panelChildren)]);
 }
@@ -644,34 +648,44 @@ function showChallenge(): void {
   enrichChallenge();
 }
 
-// Runs once per challenge set (guarded by enrichedKey): detect the DNS provider
-// and check TXT propagation. Results are cached so later re-renders repaint
-// without re-querying third-party DNS.
+// Runs once per challenge set (guarded by enrichedKey): check that the record /
+// file is visible, and (DNS only) detect the provider. Results are cached so
+// later re-renders repaint without re-querying.
 function enrichChallenge(): void {
-  if (state.config?.challenge !== "dns-01") return;
+  const isDns = state.config?.challenge === "dns-01";
   const sig = state.challenges.map((c) => c.token).join("|");
   if (enrichedKey === sig) return;
   enrichedKey = sig;
   dohStatus.clear();
   providerCache.clear();
-  for (const c of state.challenges) {
-    const key = statusKey(c);
-    void lookupNs(c.domain)
-      .then((ns) => renderProviderInto(key, detectProvider(ns)))
-      .catch(() => {
-        /* provider detection is best-effort */
-      });
+  if (isDns) {
+    for (const c of state.challenges) {
+      const key = statusKey(c);
+      void lookupNs(c.domain)
+        .then((ns) => renderProviderInto(key, detectProvider(ns)))
+        .catch(() => {
+          /* provider detection is best-effort */
+        });
+    }
   }
   void checkAllPropagation();
 }
 
 function fillDohNode(node: Element, status: DohStatus): void {
-  const labels: Record<DohStatus, string> = {
-    checking: t("doh.checking"),
-    ok: t("doh.ok"),
-    pending: t("doh.pending"),
-    error: t("doh.error"),
-  };
+  const isDns = state.config?.challenge === "dns-01";
+  const labels: Record<DohStatus, string> = isDns
+    ? {
+        checking: t("doh.checking"),
+        ok: t("doh.ok"),
+        pending: t("doh.pending"),
+        error: t("doh.error"),
+      }
+    : {
+        checking: t("httpcheck.checking"),
+        ok: t("httpcheck.ok"),
+        pending: t("httpcheck.pending"),
+        error: t("httpcheck.error"),
+      };
   node.className = `doh-status ${status === "ok" ? "ok" : status === "pending" ? "pending" : ""}`;
   node.replaceChildren();
   if (status === "checking") {
@@ -689,9 +703,14 @@ function setDoh(key: string, status: DohStatus): void {
 }
 
 async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
+  const isDns = state.config?.challenge === "dns-01";
+  const checkLabel = isDns ? t("doh.check") : t("http.check");
   if (btn) {
     btn.disabled = true;
-    btn.replaceChildren(spinner(), document.createTextNode(t("doh.checking")));
+    btn.replaceChildren(
+      spinner(),
+      document.createTextNode(isDns ? t("doh.checking") : t("httpcheck.checking")),
+    );
   }
   try {
     await Promise.all(
@@ -699,21 +718,24 @@ async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
         const key = statusKey(c);
         setDoh(key, "checking");
         try {
-          setDoh(key, (await checkTxt(c.dnsRecordName!, c.dnsRecordValue!)) ? "ok" : "pending");
+          const ok = isDns
+            ? await checkTxt(c.dnsRecordName!, c.dnsRecordValue!)
+            : await checkHttpFile(c.httpUrl!, c.httpContent!);
+          setDoh(key, ok ? "ok" : "pending");
         } catch {
           setDoh(key, "error");
         }
       }),
     );
     if (btn) {
-      // The user actively checked; if it's still not visible, reveal the escape.
-      checkedPending = state.challenges.some((c) => dohStatus.get(statusKey(c)) === "pending");
+      // The user actively checked; if any is still not visible, reveal the escape.
+      checkedPending = state.challenges.some((c) => dohStatus.get(statusKey(c)) !== "ok");
       updateVerifyGate();
     }
   } finally {
     if (btn) {
       btn.disabled = false;
-      btn.replaceChildren(document.createTextNode(t("doh.check")));
+      btn.replaceChildren(document.createTextNode(checkLabel));
     }
   }
 }
