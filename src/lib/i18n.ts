@@ -33,19 +33,44 @@ const SUPPORTED = new Set<string>(LANGS.map((l) => l.code));
 
 const DEFAULT_LANG: Lang = "en";
 
+const STORAGE_KEY = "certownia.lang";
+
 let current: Lang = detectInitialLang();
 
+/**
+ * Decide the initial language. An explicit saved choice wins; otherwise the
+ * first of the browser/system preferred languages that we support, matched on
+ * the primary subtag so "de-AT" → "de"; otherwise English. Pure, so it can be
+ * unit-tested without touching globals.
+ */
+export function resolveLang(
+  saved: string | null | undefined,
+  preferred: readonly string[],
+): Lang {
+  if (saved && SUPPORTED.has(saved)) return saved as Lang;
+  for (const p of preferred) {
+    const short = String(p).toLowerCase().split("-")[0];
+    if (SUPPORTED.has(short)) return short as Lang;
+  }
+  return DEFAULT_LANG;
+}
+
 function detectInitialLang(): Lang {
+  let saved: string | null = null;
   try {
-    const saved = localStorage.getItem("certownia.lang");
-    if (saved && SUPPORTED.has(saved)) return saved as Lang;
+    saved = localStorage.getItem(STORAGE_KEY);
   } catch {
     /* localStorage may be unavailable */
   }
-  const nav = typeof navigator !== "undefined" ? navigator.language : "";
-  const short = nav.toLowerCase().split("-")[0];
-  if (SUPPORTED.has(short)) return short as Lang;
-  return DEFAULT_LANG;
+  // navigator.languages is the ordered system-preference list; fall back to the
+  // single navigator.language. Empty in non-browser (test) environments.
+  const preferred =
+    typeof navigator !== "undefined"
+      ? navigator.languages?.length
+        ? navigator.languages
+        : [navigator.language]
+      : [];
+  return resolveLang(saved, preferred);
 }
 
 export function getLang(): Lang {
@@ -55,7 +80,7 @@ export function getLang(): Lang {
 export function setLang(lang: Lang): void {
   current = SUPPORTED.has(lang) ? lang : DEFAULT_LANG;
   try {
-    localStorage.setItem("certownia.lang", current);
+    localStorage.setItem(STORAGE_KEY, current);
   } catch {
     /* ignore */
   }

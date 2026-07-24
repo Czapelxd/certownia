@@ -191,25 +191,73 @@ body {
   color: var(--ink);
   border-color: var(--border-bright);
 }
+/* Language picker: a native <select> in a wrapper that draws its own globe and
+   chevron, so it stops looking like a default OS control. */
+.lang-select-wrap {
+  --globe: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cline x1='3' y1='12' x2='21' y2='12'/%3E%3Cellipse cx='12' cy='12' rx='4.2' ry='9'/%3E%3C/svg%3E");
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
 .lang-select {
+  appearance: none;
+  -webkit-appearance: none;
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 500;
   color: var(--text-dim);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 999px;
-  padding: 9px 12px;
+  padding: 9px 34px 9px 34px;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s, background 0.15s;
 }
-.lang-select:hover {
+.lang-select:hover,
+.lang-select:focus-visible {
   color: var(--ink);
   border-color: var(--border-bright);
 }
 .lang-select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+/* globe (left) — a mask filled with the current text color, so it follows the
+   theme and the hover state automatically. */
+.lang-select-wrap::before {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  transform: translateY(-50%);
+  background: var(--text-dim);
+  -webkit-mask: var(--globe) center / contain no-repeat;
+  mask: var(--globe) center / contain no-repeat;
+  pointer-events: none;
+  transition: background 0.15s;
+}
+/* chevron (right) — two borders rotated into a downward "v". */
+.lang-select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.6px solid var(--text-dim);
+  border-bottom: 1.6px solid var(--text-dim);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+  transition: border-color 0.15s;
+}
+.lang-select-wrap:hover::before {
+  background: var(--ink);
+}
+.lang-select-wrap:hover::after {
+  border-color: var(--ink);
 }
 /* Some browsers render the open dropdown with OS colors — nudge it toward ours. */
 .lang-select option {
@@ -517,16 +565,27 @@ input:focus-visible {
   box-shadow: inset 0 0 0 4px var(--warn-fill);
 }
 
-.check {
+/* ToS consent line. It sits as a direct child of .field, so `.field > label`
+   (which renders field captions as uppercase mono blocks) outranked plain
+   `.check` and forced display:block — silently killing the flex row and its
+   vertical centering. Match that specificity and undo the field-label look. */
+.field > label.check {
   display: flex;
   align-items: center;
   gap: 11px;
+  font-family: var(--font-body);
   font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.4;
   color: var(--text-dim);
+  margin-bottom: 0;
 }
 .check input {
   width: 17px;
   height: 17px;
+  margin: 0;
   accent-color: var(--accent);
   flex: none;
 }

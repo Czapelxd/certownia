@@ -242,7 +242,9 @@ function renderLangSelect(): HTMLElement {
     LANGS.map((l) => el("option", { value: l.code }, [l.label])),
   );
   sel.value = getLang();
-  return sel;
+  // Wrapper carries the globe icon and chevron (a native <select> can't hold
+  // pseudo-elements of its own).
+  return el("span", { class: "lang-select-wrap" }, [sel]);
 }
 
 function onLangChange(e: Event): void {
@@ -1267,6 +1269,9 @@ async function runFinalize(): Promise<void> {
 }
 
 // ---------------------------------------------------------------- boot
-setLang(getLang());
+// Reflect the detected language on <html lang> without persisting it — so the
+// system language keeps being followed on each visit until the user makes an
+// explicit choice (which setLang() then saves).
+document.documentElement.lang = getLang();
 pendingSession = loadSession();
 render();

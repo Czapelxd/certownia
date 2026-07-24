@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LANGS } from "../src/lib/i18n.js";
+import { LANGS, resolveLang } from "../src/lib/i18n.js";
 import { en } from "../src/lib/locales/en.js";
 import { pl } from "../src/lib/locales/pl.js";
 import { de } from "../src/lib/locales/de.js";
@@ -38,4 +38,31 @@ describe("i18n", () => {
       }
     });
   }
+});
+
+describe("resolveLang (system-language auto-select)", () => {
+  it("an explicit saved choice wins over the system language", () => {
+    expect(resolveLang("de", ["pl-PL", "en"])).toBe("de");
+  });
+
+  it("ignores an unsupported saved value and falls through to the system", () => {
+    expect(resolveLang("zz", ["pl-PL"])).toBe("pl");
+  });
+
+  it("auto-selects the first supported system language", () => {
+    expect(resolveLang(null, ["cs-CZ", "de-DE", "en"])).toBe("de");
+  });
+
+  it("matches on the primary subtag (fr-CA → fr, pt-BR → pt)", () => {
+    expect(resolveLang(null, ["fr-CA"])).toBe("fr");
+    expect(resolveLang(null, ["pt-BR"])).toBe("pt");
+  });
+
+  it("falls back to English when no system language is supported", () => {
+    expect(resolveLang(null, ["zh-CN", "ja", "ar"])).toBe("en");
+  });
+
+  it("falls back to English with no saved value and no system info", () => {
+    expect(resolveLang(null, [])).toBe("en");
+  });
 });
