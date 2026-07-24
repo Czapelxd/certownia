@@ -46,6 +46,7 @@ const ICON = {
   download: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>`,
   arrow: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m0 0l-6-6m6 6l-6 6"/></svg>`,
   sun: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>`,
+  info: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>`,
 };
 
 // ---------------------------------------------------------------- state
@@ -201,6 +202,16 @@ function icon(markup: string, cls?: string): HTMLElement {
 
 function spinner(): HTMLElement {
   return el("span", { class: "spinner" });
+}
+
+// A small "i" icon with a hover/focus tooltip. Focusable + aria-labelled so the
+// explanation is reachable by keyboard and screen readers, not just on hover.
+function infoTip(text: string): HTMLElement {
+  return el(
+    "span",
+    { class: "info-tip", tabindex: "0", role: "note", "aria-label": text },
+    [icon(ICON.info, "info-ico"), el("span", { class: "tip-bubble", "aria-hidden": "true" }, [text])],
+  );
 }
 
 // ---------------------------------------------------------------- shell
@@ -446,7 +457,7 @@ function renderConfig(): HTMLElement {
       ]),
     ]),
     el("div", { class: "field" }, [
-      el("label", {}, [t("cfg.keytype.label")]),
+      el("label", {}, [t("cfg.keytype.label"), infoTip(t("cfg.keytype.info"))]),
       el("div", { class: "options cols-3" }, [
         optionTile("key", "ecdsa", key === "ecdsa", "ECDSA P-256", t("cfg.keytype.ecdsa.short")),
         optionTile("key", "rsa2048", key === "rsa2048", "RSA 2048", ""),

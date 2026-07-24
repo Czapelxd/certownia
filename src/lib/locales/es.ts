@@ -39,6 +39,8 @@ export const es: Dict = {
   "cfg.keytype.label": "Tipo de clave",
   "cfg.keytype.ecdsa": "ECDSA P-256 (recomendado, más rápido)",
   "cfg.keytype.rsa2048": "RSA 2048",
+  "cfg.keytype.info":
+    "ECDSA P-256 — una clave moderna y corta: más rápida y ligera. Recomendada para servidores nuevos.\nRSA 2048 — el estándar clásico: funciona casi en todas partes, también en sistemas antiguos.\nRSA 4096 — una clave RSA más larga: máxima compatibilidad y más margen de seguridad, pero más lenta.\n¿No estás seguro? Deja ECDSA P-256.",
   "cfg.keytype.rsa4096": "RSA 4096 (máxima compatibilidad)",
   "cfg.keytype.ecdsa.short": "recomendado, más rápido",
   "cfg.keytype.rsa4096.short": "máxima compatibilidad",
