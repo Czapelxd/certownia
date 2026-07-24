@@ -94,6 +94,8 @@ sudo certbot certonly --dns-cloudflare \
   -d '*.example.com' -d example.com
 ```
 
+> **Replace `example.com`** (and `www.example.com`) with your own domain in every command above.
+
 Certificates are written to `/etc/letsencrypt/live/<your-domain>/` as `fullchain.pem` and `privkey.pem`. Point your server at those (`ssl_certificate` / `ssl_certificate_key` in Nginx; the `--nginx` / `--apache` plugins do it automatically).
 
 **3. Automatic renewal.** certbot installs a systemd timer (or cron job) that runs `certbot renew` twice a day and renews each certificate about 30 days before it expires — you don't have to do anything. Confirm it works with a dry run, and add a deploy hook so your server reloads after each renewal:
@@ -209,6 +211,8 @@ sudo certbot certonly --dns-cloudflare \
   --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
   -d '*.example.com' -d example.com
 ```
+
+> **Podmień `example.com`** (i `www.example.com`) na swoją domenę we wszystkich powyższych komendach.
 
 Certyfikaty są zapisywane w `/etc/letsencrypt/live/<your-domain>/` jako `fullchain.pem` i `privkey.pem`. Skieruj na nie swój serwer (`ssl_certificate` / `ssl_certificate_key` w Nginx; wtyczki `--nginx` / `--apache` robią to automatycznie).
 
@@ -326,6 +330,8 @@ sudo certbot certonly --dns-cloudflare \
   -d '*.example.com' -d example.com
 ```
 
+> **Ersetze `example.com`** (und `www.example.com`) in allen obigen Befehlen durch deine eigene Domain.
+
 Die Zertifikate werden nach `/etc/letsencrypt/live/<your-domain>/` als `fullchain.pem` und `privkey.pem` geschrieben. Richten Sie Ihren Server auf diese Dateien (`ssl_certificate` / `ssl_certificate_key` in Nginx; die Plugins `--nginx` / `--apache` erledigen das automatisch).
 
 **3. Automatische Erneuerung.** certbot installiert einen systemd-Timer (oder Cron-Job), der `certbot renew` zweimal täglich ausführt und jedes Zertifikat etwa 30 Tage vor Ablauf erneuert — Sie müssen nichts tun. Bestätigen Sie die Funktion mit einem Probelauf und fügen Sie einen Deploy-Hook hinzu, damit Ihr Server nach jeder Erneuerung neu lädt:
@@ -441,6 +447,8 @@ sudo certbot certonly --dns-cloudflare \
   --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
   -d '*.example.com' -d example.com
 ```
+
+> **Sustituye `example.com`** (y `www.example.com`) por tu propio dominio en todos los comandos anteriores.
 
 Los certificados se escriben en `/etc/letsencrypt/live/<your-domain>/` como `fullchain.pem` y `privkey.pem`. Apunta tu servidor a esos archivos (`ssl_certificate` / `ssl_certificate_key` en Nginx; los plugins `--nginx` / `--apache` lo hacen automáticamente).
 
@@ -558,6 +566,8 @@ sudo certbot certonly --dns-cloudflare \
   -d '*.example.com' -d example.com
 ```
 
+> **Remplacez `example.com`** (et `www.example.com`) par votre propre domaine dans toutes les commandes ci-dessus.
+
 Les certificats sont écrits dans `/etc/letsencrypt/live/<your-domain>/` sous les noms `fullchain.pem` et `privkey.pem`. Pointez votre serveur vers ces fichiers (`ssl_certificate` / `ssl_certificate_key` sous Nginx ; les plugins `--nginx` / `--apache` le font automatiquement).
 
 **3. Renouvellement automatique.** certbot installe un minuteur systemd (ou une tâche cron) qui exécute `certbot renew` deux fois par jour et renouvelle chaque certificat environ 30 jours avant son expiration — vous n'avez rien à faire. Confirmez que ça fonctionne avec un essai à blanc, et ajoutez un hook de déploiement pour que votre serveur se recharge après chaque renouvellement :
@@ -674,6 +684,8 @@ sudo certbot certonly --dns-cloudflare \
   -d '*.example.com' -d example.com
 ```
 
+> **Sostituisci `example.com`** (e `www.example.com`) con il tuo dominio in tutti i comandi qui sopra.
+
 I certificati vengono scritti in `/etc/letsencrypt/live/<your-domain>/` come `fullchain.pem` e `privkey.pem`. Punta il tuo server a quei file (`ssl_certificate` / `ssl_certificate_key` in Nginx; i plugin `--nginx` / `--apache` lo fanno automaticamente).
 
 **3. Rinnovo automatico.** certbot installa un timer systemd (o un job cron) che esegue `certbot renew` due volte al giorno e rinnova ogni certificato circa 30 giorni prima della scadenza — non devi fare nulla. Verifica che funzioni con una prova a vuoto e aggiungi un deploy hook così che il tuo server si ricarichi dopo ogni rinnovo:
@@ -789,6 +801,8 @@ sudo certbot certonly --dns-cloudflare \
   --dns-cloudflare-credentials ~/.secrets/cloudflare.ini \
   -d '*.example.com' -d example.com
 ```
+
+> **Substitui `example.com`** (e `www.example.com`) pelo teu próprio domínio em todos os comandos acima.
 
 Os certificados são escritos em `/etc/letsencrypt/live/<your-domain>/` como `fullchain.pem` e `privkey.pem`. Aponte o seu servidor para esses ficheiros (`ssl_certificate` / `ssl_certificate_key` no Nginx; os plugins `--nginx` / `--apache` fazem-no automaticamente).
 
