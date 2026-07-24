@@ -93,6 +93,11 @@ const pl: Dict = {
     "Uwaga: zmiany DNS mogą propagować od kilku minut do godziny. Jeśli sprawdzenie się nie powiedzie, poczekaj i spróbuj ponownie.",
   "chal.verify": "Zweryfikuj domenę",
   "chal.verifying": "Weryfikuję…",
+  "chal.verifyLocked":
+    "Przycisk „Zweryfikuj” odblokuje się, gdy wykryjemy rekord w DNS. Dodaj rekord i kliknij „Sprawdź, czy rekord jest już widoczny”.",
+  "chal.recordChanged":
+    "Po nieudanej próbie wygenerowaliśmy świeży rekord. Nazwa jest taka sama, ale WARTOŚĆ się zmieniła — podmień ją w DNS, sprawdź propagację i dopiero wtedy weryfikuj.",
+  "chal.verifyAnyway": "Rekord dodany, a mimo to go nie wykrywamy? Zweryfikuj mimo to.",
 
   "doh.check": "Sprawdź, czy rekord jest już widoczny",
   "doh.checking": "Sprawdzam DNS…",
@@ -165,7 +170,9 @@ const pl: Dict = {
 
   "err.title": "Coś poszło nie tak",
   "err.retry": "Spróbuj ponownie",
-  "err.startOver": "Zacznij od nowa",
+  "err.startOver": "Zacznij od nowa (inna domena)",
+  "err.verifyFailed":
+    "Nie udało się potwierdzić domeny. Najczęściej rekord nie zdążył się jeszcze rozpropagować albo jego wartość się nie zgadza. Kliknij „Spróbuj ponownie” — wygenerujemy świeży rekord: nazwa zostaje taka sama, zmienia się tylko wartość. Zaktualizuj wartość w DNS, sprawdź propagację i dopiero wtedy weryfikuj. Twoja domena i ustawienia są zapamiętane — nie musisz zaczynać od zera.",
   "err.network":
     "Nie udało się połączyć z serwerem pośredniczącym. Sprawdź, czy proxy ACME działa (patrz README), i spróbuj ponownie.",
   "err.challengeFailed":
@@ -273,6 +280,11 @@ const en: Dict = {
     "Note: DNS changes can take a few minutes to an hour to propagate. If verification fails, wait and retry.",
   "chal.verify": "Verify domain",
   "chal.verifying": "Verifying…",
+  "chal.verifyLocked":
+    "The “Verify” button unlocks once we detect the record in DNS. Add the record, then click “Check whether the record is visible yet”.",
+  "chal.recordChanged":
+    "After the failed attempt we generated a fresh record. The name is the same, but the VALUE changed — replace it in DNS, check propagation, then verify.",
+  "chal.verifyAnyway": "Record added but we still don't detect it? Verify anyway.",
 
   "doh.check": "Check whether the record is visible yet",
   "doh.checking": "Checking DNS…",
@@ -345,7 +357,9 @@ const en: Dict = {
 
   "err.title": "Something went wrong",
   "err.retry": "Try again",
-  "err.startOver": "Start over",
+  "err.startOver": "Start over (different domain)",
+  "err.verifyFailed":
+    "We couldn't verify the domain. Usually the record hasn't propagated yet, or its value doesn't match. Click “Try again” — we'll generate a fresh record: the name stays the same, only the value changes. Update the value in DNS, check propagation, then verify. Your domain and settings are kept — no need to start over.",
   "err.network":
     "Could not reach the proxy server. Check that the ACME proxy is running (see README) and try again.",
   "err.challengeFailed":

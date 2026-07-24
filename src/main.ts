@@ -98,10 +98,58 @@ let enrichedKey: string | null = null;
 const dohStatus = new Map<string, DohStatus>();
 const providerCache = new Map<string, ProviderInfo | null>();
 
+// true after a retry created a fresh order → the DNS record VALUE changed and
+// the user must update it. Drives the "record changed" banner on the challenge.
+let recordChanged = false;
+// Live refs so DoH results can gate the Verify button (DNS only): it stays
+// disabled until we actually detect the record in DNS.
+let verifyBtn: HTMLButtonElement | null = null;
+let checkBtn: HTMLButtonElement | null = null;
+let gateNote: HTMLElement | null = null;
+let escapeNote: HTMLElement | null = null;
+let verifying = false; // a verification is in flight — block re-entrancy
+let verifyForced = false; // user chose "verify anyway" past the DoH gate
+let checkedPending = false; // a manual propagation check came back not-visible
+
 function resetEnrichment(): void {
   enrichedKey = null;
   dohStatus.clear();
   providerCache.clear();
+}
+
+function resetGate(): void {
+  verifyForced = false;
+  checkedPending = false;
+}
+
+// Verify is allowed once every record is visible in DNS ("ok"), or if we simply
+// can't reach the DoH resolvers ("error" → fail open), or the user forced it.
+// http-01 has no DoH gate.
+function verifyAllowed(): boolean {
+  if (state.config?.challenge !== "dns-01") return true;
+  if (verifyForced) return true;
+  return state.challenges.every((c) => {
+    const s = dohStatus.get(statusKey(c));
+    return s === "ok" || s === "error";
+  });
+}
+
+function updateVerifyGate(): void {
+  if (state.step !== "challenge") return;
+  // While a verification is in flight, keep everything locked (prevents a late
+  // DoH result from re-enabling Verify and allowing a second concurrent run).
+  if (verifying) {
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (checkBtn) checkBtn.disabled = true;
+    return;
+  }
+  const allowed = verifyAllowed();
+  if (verifyBtn) verifyBtn.disabled = !allowed;
+  if (checkBtn) checkBtn.disabled = false;
+  if (gateNote) gateNote.style.display = allowed ? "none" : "block";
+  // Offer an escape only once the user has actively checked and it's still not
+  // visible (covers a resolver false-negative on a record that is really live).
+  if (escapeNote) escapeNote.style.display = !allowed && checkedPending ? "block" : "none";
 }
 
 function initTheme(): "dark" | "light" {
@@ -523,8 +571,11 @@ function renderChallenge(): HTMLElement {
   const panelChildren: (Node | string)[] = [
     el("h2", {}, [t("chal.title")]),
     el("div", { class: "chal-intro" }, [isDns ? t("chal.dns.intro") : t("chal.http.intro")]),
-    ...records,
   ];
+  if (isDns && recordChanged) {
+    panelChildren.push(el("div", { class: "callout warn" }, [t("chal.recordChanged")]));
+  }
+  panelChildren.push(...records);
   if (!isDns) {
     panelChildren.push(
       el("div", { class: "callout info", style: "margin-top:8px" }, [
@@ -541,19 +592,47 @@ function renderChallenge(): HTMLElement {
 
   const actions: (Node | string)[] = [];
   if (isDns) {
-    const checkBtn = el("button", { class: "btn btn-ghost btn-block", type: "button" }, [t("doh.check")]);
-    checkBtn.addEventListener("click", () => void checkAllPropagation(checkBtn));
-    actions.push(checkBtn);
+    const cBtn = el("button", { class: "btn btn-ghost btn-block", type: "button" }, [t("doh.check")]);
+    cBtn.addEventListener("click", () => void checkAllPropagation(cBtn));
+    checkBtn = cBtn;
+    actions.push(cBtn);
+  } else {
+    checkBtn = null;
   }
-  const verifyBtn = el("button", { class: "btn btn-primary btn-block", type: "button" }, [
+  const vBtn = el("button", { class: "btn btn-primary btn-block", type: "button" }, [
     t("chal.verify"),
     icon(ICON.arrow),
   ]);
-  verifyBtn.addEventListener("click", () => void runVerify(verifyBtn));
-  actions.push(verifyBtn);
+  vBtn.addEventListener("click", () => void runVerify(vBtn));
+  verifyBtn = vBtn;
+  actions.push(vBtn);
   panelChildren.push(
     el("div", { style: "display:flex; flex-direction:column; gap:12px; margin-top:26px" }, actions),
   );
+
+  // DNS-only: keep Verify locked until DoH detects the record (see verifyAllowed),
+  // with a "verify anyway" escape once a manual check is still not visible.
+  if (isDns) {
+    gateNote = el("p", { class: "note", style: "margin-top:10px; text-align:center" }, [
+      t("chal.verifyLocked"),
+    ]);
+    panelChildren.push(gateNote);
+
+    const escapeLink = el("button", { type: "button", class: "linklike" }, [t("chal.verifyAnyway")]);
+    escapeLink.addEventListener("click", () => {
+      verifyForced = true;
+      updateVerifyGate();
+    });
+    escapeNote = el("p", { class: "note", style: "margin-top:6px; text-align:center; display:none" }, [
+      escapeLink,
+    ]);
+    panelChildren.push(escapeNote);
+
+    updateVerifyGate();
+  } else {
+    gateNote = null;
+    escapeNote = null;
+  }
 
   return el("section", { class: "view" }, [stepper(1), el("div", { class: "panel" }, panelChildren)]);
 }
@@ -605,6 +684,7 @@ function setDoh(key: string, status: DohStatus): void {
   dohStatus.set(key, status);
   const node = root.querySelector(`[data-doh="${key}"]`);
   if (node) fillDohNode(node, status);
+  updateVerifyGate();
 }
 
 async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
@@ -624,6 +704,11 @@ async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
         }
       }),
     );
+    if (btn) {
+      // The user actively checked; if it's still not visible, reveal the escape.
+      checkedPending = state.challenges.some((c) => dohStatus.get(statusKey(c)) === "pending");
+      updateVerifyGate();
+    }
   } finally {
     if (btn) {
       btn.disabled = false;
@@ -811,15 +896,29 @@ function renderDone(): HTMLElement {
 
 // ---------------------------------------------------------------- error view
 function renderError(): HTMLElement {
+  // If we still have the domain + account, the user can retry without redoing
+  // anything: "Try again" makes a fresh order for the same domains.
+  const canRetry = !!(state.config && state.accountKey);
+  const actions: (Node | string)[] = [];
+  if (canRetry) {
+    actions.push(
+      el("button", { class: "btn btn-primary", type: "button", onclick: () => void retryOrder() }, [
+        t("err.retry"),
+      ]),
+    );
+  }
+  actions.push(
+    el(
+      "button",
+      { class: canRetry ? "btn btn-ghost" : "btn btn-primary", type: "button", onclick: resetFlow },
+      [t("err.startOver")],
+    ),
+  );
   return el("section", { class: "view" }, [
     el("div", { class: "panel" }, [
       el("h2", {}, [t("err.title")]),
       el("div", { class: "form-error", style: "display:block; white-space:pre-wrap" }, [state.error]),
-      el("div", { class: "form-actions" }, [
-        el("button", { class: "btn btn-primary", type: "button", onclick: resetFlow }, [
-          t("err.startOver"),
-        ]),
-      ]),
+      el("div", { class: "form-actions" }, actions),
     ]),
   ]);
 }
@@ -849,6 +948,10 @@ function resetFlow(): void {
   clearSession();
   pendingSession = null;
   resetEnrichment();
+  resetGate();
+  recordChanged = false;
+  verifyBtn = null;
+  gateNote = null;
   state.certKey = null;
   state.order = null;
   state.challenges = [];
@@ -871,6 +974,8 @@ async function resumeSession(): Promise<void> {
   const s = pendingSession;
   if (!s) return;
   resetEnrichment();
+  resetGate();
+  recordChanged = false;
   state.workLines = ["resume.restoring"];
   goto("work");
   setLog("resume.restoring", "active");
@@ -915,6 +1020,8 @@ function fail(e: unknown): void {
 async function runSetup(): Promise<void> {
   const cfg = state.config!;
   resetEnrichment();
+  resetGate();
+  recordChanged = false;
   state.workLines = [
     "work.genAccountKey",
     "work.genCertKey",
@@ -969,7 +1076,10 @@ async function runSetup(): Promise<void> {
 }
 
 async function runVerify(btn: HTMLButtonElement): Promise<void> {
+  if (verifying) return; // guard against a second concurrent verification
+  verifying = true;
   btn.disabled = true;
+  if (checkBtn) checkBtn.disabled = true; // no propagation re-check mid-verify
   btn.replaceChildren(spinner(), document.createTextNode(t("chal.verifying")));
   try {
     await state.client!.verifyChallenges(state.challenges, (c, status) =>
@@ -977,13 +1087,68 @@ async function runVerify(btn: HTMLButtonElement): Promise<void> {
     );
     await runFinalize();
   } catch (e) {
-    // A non-network failure means the authorization is terminally invalid and
-    // the order can never finalize — drop the dead session so the resume banner
-    // doesn't trap the user in a loop. Keep it on a transient network error.
-    if (!(e instanceof TypeError)) {
-      clearSession();
-      pendingSession = null;
+    // Don't wipe anything: keep the domain, config and account so the user can
+    // retry without re-entering everything. A failed challenge makes the ACME
+    // order terminal, so "Try again" on the error screen creates a fresh order
+    // for the SAME domains — same record name, new value.
+    console.error("[certownia]", e);
+    if (e instanceof AcmeError && e.isRateLimit) {
+      state.error = `${t("err.rateLimited")}\n\n${e.detail}`;
+    } else if (e instanceof AcmeError) {
+      state.error = `${t("err.verifyFailed")}\n\n${e.detail}`;
+    } else {
+      state.error = describeError(e);
     }
+    goto("error");
+  } finally {
+    verifying = false;
+  }
+}
+
+// Retry after a failed verification WITHOUT starting over: reuse the same
+// account key and config, create a fresh order (same domains → same record
+// name, new value) and go back to the challenge screen.
+async function retryOrder(): Promise<void> {
+  const cfg = state.config;
+  if (!cfg || !state.accountKey) {
+    goto("config");
+    return;
+  }
+  resetEnrichment();
+  resetGate();
+  recordChanged = true; // fresh order → the record value changed
+  state.workLines = ["work.newOrder", "work.fetchChallenges"];
+  goto("work");
+  try {
+    if (!state.client) {
+      state.client = new AcmeClient(cfg.env, state.accountKey, ACME_PROXY);
+      await state.client.init();
+      await state.client.createAccount(cfg.email || undefined);
+    }
+    setLog("work.newOrder", "active");
+    state.order = await state.client.newOrder(cfg.domains);
+    setLog("work.newOrder", "done");
+
+    setLog("work.fetchChallenges", "active");
+    state.challenges = await state.client.getChallenges(state.order, cfg.challenge);
+    setLog("work.fetchChallenges", "done");
+
+    if (state.challenges.length === 0) {
+      await runFinalize(); // every identifier already authorized
+      return;
+    }
+    if (state.client.pendingOrderUrl && state.order) {
+      saveSession({
+        config: cfg,
+        accountKeyJwk: await exportAccountKeyJwk(state.accountKey),
+        order: state.order,
+        orderUrl: state.client.pendingOrderUrl,
+        challenges: state.challenges,
+      });
+      pendingSession = loadSession();
+    }
+    showChallenge();
+  } catch (e) {
     fail(e);
   }
 }
