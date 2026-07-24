@@ -1060,10 +1060,6 @@ input:focus-visible {
 .renew-details > summary:hover {
   color: var(--accent-strong);
 }
-/* the guide already has its own top margin/callout; tighten it inside details */
-.renew-details .callout {
-  margin-top: 12px;
-}
 
 /* resume banner */
 .resume {
