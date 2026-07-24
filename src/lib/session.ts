@@ -27,6 +27,8 @@ export interface PersistedSession {
   order: AcmeOrder;
   orderUrl: string;
   challenges: ChallengeInstruction[];
+  recordChanged?: boolean; // survives reload so the "value changed" banner persists
+  orderDead?: boolean; // set after a failed verify → resume makes a fresh order
 }
 
 export function saveSession(s: Omit<PersistedSession, "savedAt">): void {
@@ -56,6 +58,19 @@ export function loadSession(): PersistedSession | null {
 export function clearSession(): void {
   try {
     localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Flag the stored order as dead (a failed verify) so resume issues a fresh one. */
+export function markSessionDead(): void {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw) as PersistedSession;
+    s.orderDead = true;
+    localStorage.setItem(KEY, JSON.stringify(s));
   } catch {
     /* ignore */
   }

@@ -21,7 +21,13 @@ import {
 import { csrToAcmeBase64url } from "./lib/csr.js";
 import { buildAcmeSh, buildCertbot, buildCertbotDnsCloudflare } from "./lib/commands.js";
 import { copyToClipboard, downloadText } from "./lib/download.js";
-import { clearSession, loadSession, saveSession, type PersistedSession } from "./lib/session.js";
+import {
+  clearSession,
+  loadSession,
+  markSessionDead,
+  saveSession,
+  type PersistedSession,
+} from "./lib/session.js";
 import { checkHttpFile, checkTxt, lookupNs } from "./lib/doh.js";
 import { detectProvider, type ProviderInfo } from "./lib/providers.js";
 
@@ -1037,14 +1043,23 @@ async function resumeSession(): Promise<void> {
     const client = new AcmeClient(s.config.env, accountKey, ACME_PROXY);
     await client.init();
     await client.createAccount(s.config.email || undefined);
-    client.restoreOrder(s.orderUrl);
 
     state.config = { ...s.config };
     state.accountKey = accountKey;
     state.client = client;
+    state.certKey = null;
+
+    if (s.orderDead) {
+      // The previous order failed validation — go straight to a fresh order
+      // instead of restoring the dead one (no wasted verify → fail round-trip).
+      await retryOrder();
+      return;
+    }
+
+    client.restoreOrder(s.orderUrl);
     state.order = s.order;
     state.challenges = s.challenges;
-    state.certKey = null;
+    recordChanged = s.recordChanged ?? false; // keep the "value changed" banner
     showChallenge();
   } catch (e) {
     clearSession();
@@ -1118,6 +1133,7 @@ async function runSetup(): Promise<void> {
           order: state.order,
           orderUrl: state.client.pendingOrderUrl,
           challenges: state.challenges,
+          recordChanged,
         });
         pendingSession = loadSession();
       }
@@ -1149,6 +1165,10 @@ async function runVerify(btn: HTMLButtonElement): Promise<void> {
       state.error = `${t("err.rateLimited")}\n\n${e.detail}`;
     } else if (e instanceof AcmeError) {
       state.error = `${t("err.verifyFailed")}\n\n${e.detail}`;
+      // The authorization is terminally invalid — mark the saved order dead so a
+      // later resume issues a fresh one instead of re-failing on this one.
+      markSessionDead();
+      pendingSession = loadSession();
     } else {
       state.error = describeError(e);
     }
@@ -1197,6 +1217,7 @@ async function retryOrder(): Promise<void> {
         order: state.order,
         orderUrl: state.client.pendingOrderUrl,
         challenges: state.challenges,
+        recordChanged,
       });
       pendingSession = loadSession();
     }
