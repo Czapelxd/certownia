@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # npm dependencies (both the shipped libs and the dev/build toolchain).
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  # Keep the SHA-pinned GitHub Actions current (Dependabot bumps the pin + comment).
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

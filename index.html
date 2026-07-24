@@ -3,6 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Strict Content-Security-Policy. GitHub Pages can't set HTTP headers, so we
+      ship it as a meta tag. connect-src is the exact egress allowlist: Let's
+      Encrypt (prod + staging), the two DoH resolvers, and the http-01 relay —
+      nothing else. This is the main thing that stops an injected/tampered script
+      from exfiltrating a key. style-src needs 'unsafe-inline' only for inline
+      style="" attributes (no inline <script> exists, so script-src stays tight).
+      NOTE: if you build with an ABSOLUTE-origin VITE_ACME_PROXY, add its origin
+      to connect-src. frame-ancestors is ignored in a meta tag (needs a header).
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://acme-v02.api.letsencrypt.org https://acme-staging-v02.api.letsencrypt.org https://cloudflare-dns.com https://dns.google https://api.allorigins.win; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'"
+    />
+    <meta name="referrer" content="no-referrer" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <title>Certownia — darmowy certyfikat SSL w przeglądarce</title>
     <meta

@@ -14,9 +14,19 @@ Certownia handles cryptographic key material, so security is the whole point.
   that could observe requests. The optional proxy (`functions/`, `proxy/`) is
   off by default and, when enabled, only relays already-signed ACME requests —
   it still never sees a private key.
-- **No tracking, no accounts, no storage of secrets.** The app stores only UI
-  preferences (language, theme) in `localStorage`. No certificates, keys, or
-  domains are persisted.
+- **No tracking, no accounts, no server-side storage.** There is no backend that
+  stores anything about you; the app runs entirely in your browser and sets no
+  cookies and no analytics.
+- **What the browser stores locally.** The **certificate** private key is never
+  persisted — it exists only in memory and is offered to you as a download. To
+  let you resume a pending verification after a reload, the app does keep the
+  current session in your browser's `localStorage` (key `certownia.session.v1`)
+  for up to 7 days, cleared on success or a fresh start: this holds the
+  domain(s), the optional email, the pending order and challenges, and the ACME
+  **account** key. The account key is not the certificate key, never signs your
+  certificate, and is never transmitted anywhere. UI preferences (language,
+  theme) are stored separately. Clearing your browser's site data removes all of
+  it; avoid leaving a pending session on a shared or public computer.
 - **Self-hosted fonts.** No third-party requests for assets (no CDN, no Google
   Fonts call), so loading the tool does not leak the visitor's IP to third parties.
 - **DNS propagation checks use public DoH resolvers.** To tell you whether your
