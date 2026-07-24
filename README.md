@@ -37,12 +37,26 @@ serwerze (Nginx: `ssl_certificate` / `ssl_certificate_key`; Apache:
 > zaufany przez przeglądarki, ale nie zużywa limitów Let's Encrypt — idealny,
 > żeby sprawdzić, że wszystko działa, zanim wystawisz certyfikat produkcyjny.
 
+### Wygoda
+
+- **Rozpoznaje Twój panel DNS** (OVH, cyberFolks, home.pl, Cloudflare, nazwa.pl)
+  i pokazuje instrukcję krok po kroku.
+- **Sprawdza propagację** rekordu TXT przez DNS-over-HTTPS, żebyś nie klikał
+  „Zweryfikuj” na ślepo.
+- **Zapamiętuje domenę** w przeglądarce — możesz zamknąć kartę i wrócić do tej
+  samej weryfikacji (ten sam rekord), bez zaczynania od nowa.
+
 ### Dlaczego to bezpieczne
 
-- Klucz prywatny generowany w przeglądarce (WebCrypto) i **nigdzie nie wysyłany**.
+- Klucz prywatny certyfikatu generowany w przeglądarce (WebCrypto) i **nigdzie
+  nie wysyłany**, ani nie zapisywany.
 - Brak backendu — przeglądarka rozmawia z Let's Encrypt bezpośrednio.
-- Brak kont, brak śledzenia, brak zapisywania sekretów.
-- Fonty hostowane lokalnie — zero zapytań do zewnętrznych serwerów.
+- Brak kont, brak śledzenia. Zapisujemy lokalnie tylko dane bieżącej weryfikacji
+  (domena + klucz konta ACME), żeby dało się do niej wrócić; znika po wydaniu
+  certyfikatu.
+- Sprawdzanie DNS pyta publiczne resolvery (Cloudflare/Google) wyłącznie o nazwę
+  Twojej domeny.
+- Fonty hostowane lokalnie — zero zapytań do zewnętrznych serwerów po zasoby.
 
 Szczegóły w [SECURITY.md](SECURITY.md).
 
@@ -71,6 +85,26 @@ your server (Nginx: `ssl_certificate` / `ssl_certificate_key`; Apache:
 > browsers but do not consume Let's Encrypt rate limits — perfect to confirm the
 > flow works before issuing a production certificate.
 
+### Convenience
+
+- **Recognises your DNS panel** (OVH, cyberFolks, home.pl, Cloudflare, nazwa.pl)
+  and shows step-by-step instructions.
+- **Checks propagation** of the TXT record over DNS-over-HTTPS so you don't click
+  “Verify” blindly.
+- **Remembers your domain** in the browser — close the tab and return to the same
+  verification (same record) without starting over.
+
+### Why it's secure
+
+- The certificate private key is generated in the browser (WebCrypto) and **never
+  sent anywhere**, nor stored.
+- No backend — the browser talks to Let's Encrypt directly.
+- No accounts, no tracking. We store only the current verification (domain + ACME
+  account key) locally so you can resume it; it's cleared once the certificate is
+  issued.
+- DNS checks query public resolvers (Cloudflare/Google) for your domain name only.
+- Fonts are self-hosted — no third-party requests for assets.
+
 ---
 
 ## Architecture
@@ -96,6 +130,10 @@ Browser (all crypto here)                         Let's Encrypt ACME
 - **`src/lib/csr.ts`** — PKCS#10 CSR with SAN via PKI.js.
 - **`src/lib/acme.ts`** — the ACME v2 client (directory, nonce, account, order,
   challenges, finalize, certificate download).
+- **`src/lib/doh.ts`** — DNS-over-HTTPS (Cloudflare/Google): TXT propagation check
+  and NS lookup for provider detection.
+- **`src/lib/providers.ts`** — DNS provider knowledge base + matching by NS.
+- **`src/lib/session.ts`** — persist/resume a pending verification in localStorage.
 - **`src/main.ts`** — the bilingual, themeable UI wizard.
 
 Key material never touches a server. There is an **optional** CORS proxy
@@ -106,8 +144,9 @@ relays already-signed requests and is host-allow-listed against SSRF.
 
 ## Tech stack
 
-Vite · TypeScript · WebCrypto · [PKI.js](https://pkijs.org) · zero UI framework.
-Self-hosted fonts (JetBrains Mono, Hanken Grotesk).
+Vite · TypeScript · WebCrypto · [PKI.js](https://pkijs.org) · DNS-over-HTTPS ·
+zero UI framework. BAXY IT brand system, self-hosted fonts (Bricolage Grotesque,
+Inter, Geist Mono).
 
 ## Development
 

@@ -1,0 +1,65 @@
+// DNS-over-HTTPS lookups (Cloudflare with a Google fallback). Both endpoints
+// send CORS headers, so this works straight from the browser. Used to (a) tell
+// the user whether their TXT record has propagated before they trigger ACME
+// validation, and (b) detect their DNS provider from the zone's NS records.
+
+const ENDPOINTS = [
+  (name: string, type: string) =>
+    `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`,
+  (name: string, type: string) =>
+    `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${type}`,
+];
+
+interface DohAnswer {
+  name?: string;
+  type?: number;
+  data?: string;
+}
+interface DohJson {
+  Answer?: DohAnswer[];
+  Authority?: DohAnswer[];
+}
+
+async function dohJson(name: string, type: string): Promise<DohJson | null> {
+  for (const build of ENDPOINTS) {
+    try {
+      const res = await fetch(build(name, type), { headers: { accept: "application/dns-json" } });
+      if (res.ok) return (await res.json()) as DohJson;
+    } catch {
+      /* try next endpoint */
+    }
+  }
+  return null;
+}
+
+function unquoteTxt(data: string): string {
+  return data
+    .trim()
+    .replace(/^"(.*)"$/s, "$1")
+    .replace(/\\"/g, '"');
+}
+
+/** True if a TXT record with `expected` value is already visible for `name`. */
+export async function checkTxt(name: string, expected: string): Promise<boolean> {
+  const j = await dohJson(name, "TXT");
+  if (!j) throw new Error("DoH lookup failed");
+  return (j.Answer ?? []).some((a) => unquoteTxt(String(a.data ?? "")) === expected);
+}
+
+/** Return the zone's NS hostnames (walks up to the apex; merges Authority). */
+export async function lookupNs(domain: string): Promise<string[]> {
+  const base = domain.replace(/^\*\./, "");
+  const labels = base.split(".");
+  const candidates = [base];
+  if (labels.length > 2) candidates.push(labels.slice(-2).join("."));
+  if (labels.length > 3) candidates.push(labels.slice(-3).join("."));
+
+  const out = new Set<string>();
+  for (const c of candidates) {
+    const j = await dohJson(c, "NS");
+    const records = [...(j?.Answer ?? []), ...(j?.Authority ?? [])].filter((r) => r.type === 2);
+    for (const r of records) out.add(String(r.data ?? "").replace(/\.$/, "").toLowerCase());
+    if (out.size) break;
+  }
+  return [...out];
+}

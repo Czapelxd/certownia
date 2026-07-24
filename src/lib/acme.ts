@@ -193,6 +193,16 @@ export class AcmeClient {
     return r.json as AcmeOrder;
   }
 
+  /** The pending order URL (needed to persist/resume a session). */
+  get pendingOrderUrl(): string | null {
+    return this.orderUrl;
+  }
+
+  /** Restore the order URL when resuming a persisted session. */
+  restoreOrder(orderUrl: string): void {
+    this.orderUrl = orderUrl;
+  }
+
   /** Fetch every authorization and derive the concrete instructions for `type`. */
   async getChallenges(order: AcmeOrder, type: ChallengeType): Promise<ChallengeInstruction[]> {
     const out: ChallengeInstruction[] = [];

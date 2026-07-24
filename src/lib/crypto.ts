@@ -16,12 +16,36 @@ export function jwsAlg(key: CryptoKey): "ES256" | "RS256" {
   return key.algorithm.name === "ECDSA" ? "ES256" : "RS256";
 }
 
-/** Generate the ACME account key pair (ECDSA P-256, non-extractable private). */
+/**
+ * Generate the ACME account key pair (ECDSA P-256). Extractable so a pending
+ * challenge can be persisted (see session.ts) and resumed with the SAME DNS/HTTP
+ * value after a reload. The account key is not the certificate key and is never
+ * transmitted; it stays in this browser's localStorage until the flow completes.
+ */
 export function generateAccountKey(): Promise<CryptoKeyPair> {
-  return crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, false, [
+  return crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
     "sign",
     "verify",
   ]) as Promise<CryptoKeyPair>;
+}
+
+/** Export the account private key as a JWK (for session persistence). */
+export function exportAccountKeyJwk(kp: CryptoKeyPair): Promise<JsonWebKey> {
+  return crypto.subtle.exportKey("jwk", kp.privateKey);
+}
+
+/** Reconstruct an account key pair from a persisted private JWK. */
+export async function importAccountKey(jwk: JsonWebKey): Promise<CryptoKeyPair> {
+  const alg = { name: "ECDSA", namedCurve: "P-256" };
+  const privateKey = await crypto.subtle.importKey("jwk", jwk, alg, true, ["sign"]);
+  const publicKey = await crypto.subtle.importKey(
+    "jwk",
+    { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y },
+    alg,
+    true,
+    ["verify"],
+  );
+  return { privateKey, publicKey };
 }
 
 /** Generate the certificate key pair; private key is extractable for download. */

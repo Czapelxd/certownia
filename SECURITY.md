@@ -17,8 +17,11 @@ Certownia handles cryptographic key material, so security is the whole point.
 - **No tracking, no accounts, no storage of secrets.** The app stores only UI
   preferences (language, theme) in `localStorage`. No certificates, keys, or
   domains are persisted.
-- **Self-hosted fonts.** No third-party requests (no CDN, no Google Fonts call),
-  so visiting the tool does not leak the visitor's IP or domain to third parties.
+- **Self-hosted fonts.** No third-party requests for assets (no CDN, no Google
+  Fonts call), so loading the tool does not leak the visitor's IP to third parties.
+- **DNS propagation checks use public DoH resolvers.** To tell you whether your
+  TXT record is live and to guess your DNS provider, the app queries Cloudflare
+  and Google DNS-over-HTTPS with the domain name only — never any key material.
 - **The optional proxy is not an open relay.** It allow-lists the Let's Encrypt
   ACME hosts, so it cannot be abused to reach arbitrary URLs (SSRF).
 

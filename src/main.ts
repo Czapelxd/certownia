@@ -11,15 +11,20 @@ import {
   type ChallengeType,
 } from "./lib/acme.js";
 import {
+  exportAccountKeyJwk,
   exportPrivateKeyPem,
   generateAccountKey,
   generateCertKey,
+  importAccountKey,
   type CertKeyType,
 } from "./lib/crypto.js";
 import { csrToAcmeBase64url } from "./lib/csr.js";
 import { copyToClipboard, downloadText } from "./lib/download.js";
+import { clearSession, loadSession, saveSession, type PersistedSession } from "./lib/session.js";
+import { checkTxt, lookupNs } from "./lib/doh.js";
+import { detectProvider, type ProviderInfo } from "./lib/providers.js";
 
-const SOURCE_URL = "https://github.com/Czapelxd/certownia";
+const SOURCE_URL = "https://github.com/BAXY-IT/certownia";
 const BAXY_URL = "https://baxy.it";
 
 // Optional ACME proxy. Empty by default — the browser talks to Let's Encrypt
@@ -29,7 +34,7 @@ const ACME_PROXY = String(import.meta.env.VITE_ACME_PROXY ?? "");
 
 // ---------------------------------------------------------------- icons
 const ICON = {
-  brand: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="40" height="40"><path d="M11 14v-2.5a5 5 0 0 1 10 0V14" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/><rect x="8.5" y="14" width="15" height="11" rx="2.6" fill="var(--accent)"/><circle cx="16" cy="18.6" r="1.7" fill="var(--bg)"/><rect x="15.2" y="19.4" width="1.6" height="3.4" rx="0.8" fill="var(--bg)"/></svg>`,
+  brand: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="40" height="40"><path d="M11 14v-2.5a5 5 0 0 1 10 0V14" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/><rect x="8.5" y="14" width="15" height="11" rx="2.6" fill="var(--accent)"/><circle cx="16" cy="18.6" r="1.7" fill="var(--paper)"/><rect x="15.2" y="19.4" width="1.6" height="3.4" rx="0.8" fill="var(--paper)"/></svg>`,
   shield: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>`,
   check: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>`,
   download: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l4-4m-4 4l-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>`,
@@ -78,6 +83,26 @@ const state: AppState = {
   workLines: [],
 };
 
+// A pending, resumable verification found in localStorage on load (or after a
+// setup run). Drives the resume banner on the hero.
+let pendingSession: PersistedSession | null = null;
+
+type DohStatus = "checking" | "ok" | "pending" | "error";
+
+// Challenge-enrichment cache (DoH propagation status + detected provider), keyed
+// by statusKey. Re-renders (theme/language toggle) repaint from this cache
+// instead of re-querying third-party DNS; enrichedKey gates the one-time
+// auto-check per challenge set.
+let enrichedKey: string | null = null;
+const dohStatus = new Map<string, DohStatus>();
+const providerCache = new Map<string, ProviderInfo | null>();
+
+function resetEnrichment(): void {
+  enrichedKey = null;
+  dohStatus.clear();
+  providerCache.clear();
+}
+
 function initTheme(): "dark" | "light" {
   try {
     const saved = localStorage.getItem("certownia.theme");
@@ -85,7 +110,7 @@ function initTheme(): "dark" | "light" {
   } catch {
     /* ignore */
   }
-  return "dark";
+  return "light"; // matches baxy.it (light/paper)
 }
 
 // ---------------------------------------------------------------- dom helpers
@@ -136,8 +161,8 @@ function renderHeader(): HTMLElement {
     el("div", { class: "brand" }, [
       icon(ICON.brand, "brand-mark"),
       el("div", { class: "brand-text" }, [
-        el("span", { class: "brand-name" }, ["Cert", el("b", {}, ["ownia"])]),
-        el("span", { class: "brand-tag" }, [t("app.tagline")]),
+        el("span", { class: "brand-name" }, ["Certownia"]),
+        el("span", { class: "brand-tag" }, ["by BAXY", el("span", { class: "dot" }, ["."]), "it"]),
       ]),
     ]),
     el("div", { class: "header-actions" }, [
@@ -167,7 +192,11 @@ function renderFooter(): HTMLElement {
   return el("footer", { class: "site-footer" }, [
     el("div", {}, [
       `${t("footer.madeBy")} `,
-      el("a", { href: BAXY_URL, target: "_blank", rel: "noopener" }, ["BAXY IT"]),
+      el("a", { href: BAXY_URL, target: "_blank", rel: "noopener" }, [
+        "BAXY",
+        el("span", { class: "dot" }, ["."]),
+        "it",
+      ]),
     ]),
     el("div", { class: "foot-links" }, [
       el("a", { href: SOURCE_URL, target: "_blank", rel: "noopener" }, [t("footer.source")]),
@@ -202,7 +231,7 @@ function renderHero(): HTMLElement {
     ]),
   );
 
-  return el("section", { class: "view hero" }, [
+  const section = el("section", { class: "view hero" }, [
     el("span", { class: "eyebrow" }, ["●  ", t("app.poweredBy")]),
     el("h1", {}, [t("hero.title")]),
     el("p", { class: "lede" }, [t("hero.subtitle")]),
@@ -218,6 +247,29 @@ function renderHero(): HTMLElement {
       el("div", {}, [el("h3", {}, [t("hero.trust.title")]), el("p", {}, [t("hero.trust.body")])]),
     ]),
     el("div", { class: "how" }, how),
+  ]);
+  if (pendingSession) section.prepend(renderResumeBanner());
+  return section;
+}
+
+function renderResumeBanner(): HTMLElement {
+  const s = pendingSession!;
+  const extra = s.config.domains.length > 1 ? ` +${s.config.domains.length - 1}` : "";
+  return el("div", { class: "resume" }, [
+    el("div", { class: "resume-text" }, [
+      el("div", {}, [t("resume.text", s.config.domains[0] + extra)]),
+      el("div", { style: "margin-top:4px; color: var(--muted); font-size: 0.84rem" }, [
+        t("resume.hint"),
+      ]),
+    ]),
+    el("div", { class: "resume-actions" }, [
+      el("button", { class: "btn btn-primary", type: "button", onclick: () => void resumeSession() }, [
+        t("resume.continue"),
+      ]),
+      el("button", { class: "btn btn-ghost", type: "button", onclick: discardSession }, [
+        t("resume.discard"),
+      ]),
+    ]),
   ]);
 }
 
@@ -241,25 +293,26 @@ function optionTile(
 function renderConfig(): HTMLElement {
   const errBox = el("div", { class: "form-error", style: "display:none", role: "alert" });
 
+  const cfg0 = state.config ?? pendingSession?.config ?? null;
   const domains = el("input", {
     type: "text",
     id: "f-domains",
     placeholder: t("cfg.domains.placeholder"),
     autocomplete: "off",
     spellcheck: "false",
-    value: state.config?.domains.join(" ") ?? "",
+    value: cfg0?.domains.join(" ") ?? "",
   });
   const email = el("input", {
     type: "email",
     id: "f-email",
     placeholder: t("cfg.email.placeholder"),
     autocomplete: "off",
-    value: state.config?.email ?? "",
+    value: cfg0?.email ?? "",
   });
 
-  const env = state.config?.env ?? "staging";
-  const key = state.config?.keyType ?? "ecdsa";
-  const chal = state.config?.challenge ?? "dns-01";
+  const env = cfg0?.env ?? "staging";
+  const key = cfg0?.keyType ?? "ecdsa";
+  const chal = cfg0?.challenge ?? "dns-01";
 
   const form = el("form", { novalidate: true }, [
     errBox,
@@ -420,6 +473,7 @@ function copyField(text: string): HTMLElement {
 function renderChallenge(): HTMLElement {
   const isDns = state.config!.challenge === "dns-01";
   const records = state.challenges.map((c) => {
+    const key = statusKey(c);
     const head = el("div", { class: "record-head" }, [
       el("span", { class: "domain" }, [c.wildcard ? `*.${c.domain}` : c.domain]),
       c.wildcard ? el("span", { class: "badge wild" }, ["wildcard"]) : "",
@@ -451,25 +505,154 @@ function renderChallenge(): HTMLElement {
       dlBtn.addEventListener("click", () => downloadText(c.httpFilename!, c.httpContent!, "text/plain"));
       children.push(dlBtn);
     }
-    children.push(el("div", { class: "record-status", "data-status": statusKey(c) }, [el("span", {}, ["·"])]));
+    if (isDns) {
+      const dohNode = el("div", { class: "doh-status", "data-doh": key });
+      const cachedDoh = dohStatus.get(key);
+      if (cachedDoh) fillDohNode(dohNode, cachedDoh);
+      children.push(dohNode);
+
+      const provNode = el("div", { class: "provider", "data-provider": key, style: "display:none" });
+      if (providerCache.has(key)) fillProviderNode(provNode, providerCache.get(key) ?? null);
+      children.push(provNode);
+    }
+    children.push(el("div", { class: "record-status", "data-status": key }, [el("span", {}, ["·"])]));
     return el("div", { class: "record" }, children);
   });
-
-  const verifyBtn = el("button", { class: "btn btn-primary btn-block", type: "button" }, [
-    t("chal.verify"),
-    icon(ICON.arrow),
-  ]);
-  verifyBtn.addEventListener("click", () => void runVerify(verifyBtn));
 
   const panelChildren: (Node | string)[] = [
     el("h2", {}, [t("chal.title")]),
     el("div", { class: "chal-intro" }, [isDns ? t("chal.dns.intro") : t("chal.http.intro")]),
     ...records,
   ];
-  if (isDns) panelChildren.push(el("p", { class: "note" }, [t("chal.dns.propagation")]));
-  panelChildren.push(el("div", { class: "form-actions" }, [verifyBtn]));
+  if (!isDns) {
+    panelChildren.push(
+      el("div", { class: "callout info", style: "margin-top:8px" }, [
+        el("h4", {}, [t("http.where.title")]),
+        el("p", { style: "margin:0" }, [t("http.where.body")]),
+      ]),
+    );
+  }
+  if (isDns) {
+    panelChildren.push(el("p", { class: "note" }, [t("chal.dns.propagation")]));
+    panelChildren.push(el("p", { class: "note", style: "margin-top:-14px" }, [t("doh.hint")]));
+    panelChildren.push(el("p", { class: "note", style: "margin-top:-14px" }, [t("doh.privacy")]));
+  }
+
+  const actions: (Node | string)[] = [];
+  if (isDns) {
+    const checkBtn = el("button", { class: "btn btn-ghost btn-block", type: "button" }, [t("doh.check")]);
+    checkBtn.addEventListener("click", () => void checkAllPropagation(checkBtn));
+    actions.push(checkBtn);
+  }
+  const verifyBtn = el("button", { class: "btn btn-primary btn-block", type: "button" }, [
+    t("chal.verify"),
+    icon(ICON.arrow),
+  ]);
+  verifyBtn.addEventListener("click", () => void runVerify(verifyBtn));
+  actions.push(verifyBtn);
+  panelChildren.push(
+    el("div", { style: "display:flex; flex-direction:column; gap:12px; margin-top:26px" }, actions),
+  );
 
   return el("section", { class: "view" }, [stepper(1), el("div", { class: "panel" }, panelChildren)]);
+}
+
+// ---- challenge enrichment: DNS propagation check + provider detection ----
+function showChallenge(): void {
+  goto("challenge");
+  enrichChallenge();
+}
+
+// Runs once per challenge set (guarded by enrichedKey): detect the DNS provider
+// and check TXT propagation. Results are cached so later re-renders repaint
+// without re-querying third-party DNS.
+function enrichChallenge(): void {
+  if (state.config?.challenge !== "dns-01") return;
+  const sig = state.challenges.map((c) => c.token).join("|");
+  if (enrichedKey === sig) return;
+  enrichedKey = sig;
+  dohStatus.clear();
+  providerCache.clear();
+  for (const c of state.challenges) {
+    const key = statusKey(c);
+    void lookupNs(c.domain)
+      .then((ns) => renderProviderInto(key, detectProvider(ns)))
+      .catch(() => {
+        /* provider detection is best-effort */
+      });
+  }
+  void checkAllPropagation();
+}
+
+function fillDohNode(node: Element, status: DohStatus): void {
+  const labels: Record<DohStatus, string> = {
+    checking: t("doh.checking"),
+    ok: t("doh.ok"),
+    pending: t("doh.pending"),
+    error: t("doh.error"),
+  };
+  node.className = `doh-status ${status === "ok" ? "ok" : status === "pending" ? "pending" : ""}`;
+  node.replaceChildren();
+  if (status === "checking") {
+    node.append(spinner(), document.createTextNode(" " + labels.checking));
+  } else {
+    node.append(document.createTextNode((status === "ok" ? "✓ " : "") + labels[status]));
+  }
+}
+
+function setDoh(key: string, status: DohStatus): void {
+  dohStatus.set(key, status);
+  const node = root.querySelector(`[data-doh="${key}"]`);
+  if (node) fillDohNode(node, status);
+}
+
+async function checkAllPropagation(btn?: HTMLButtonElement): Promise<void> {
+  if (btn) {
+    btn.disabled = true;
+    btn.replaceChildren(spinner(), document.createTextNode(t("doh.checking")));
+  }
+  try {
+    await Promise.all(
+      state.challenges.map(async (c) => {
+        const key = statusKey(c);
+        setDoh(key, "checking");
+        try {
+          setDoh(key, (await checkTxt(c.dnsRecordName!, c.dnsRecordValue!)) ? "ok" : "pending");
+        } catch {
+          setDoh(key, "error");
+        }
+      }),
+    );
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.replaceChildren(document.createTextNode(t("doh.check")));
+    }
+  }
+}
+
+function fillProviderNode(node: HTMLElement, info: ProviderInfo | null): void {
+  node.style.display = "block";
+  node.replaceChildren();
+  if (!info) {
+    node.append(el("div", { style: "font-size:.86rem; color: var(--muted)" }, [t("provider.generic")]));
+    return;
+  }
+  node.append(
+    el("h4", {}, [el("span", { class: "pill" }, ["DNS"]), t("provider.detected", info.name)]),
+    el(
+      "ol",
+      {},
+      info.steps[getLang()].map((s) => el("li", {}, [s])),
+    ),
+    el("a", { href: info.url, target: "_blank", rel: "noopener" }, [t("provider.open", info.name)]),
+  );
+}
+
+function renderProviderInto(key: string, info: ProviderInfo | null): void {
+  providerCache.set(key, info);
+  const node = root.querySelector(`[data-provider="${key}"]`) as HTMLElement | null;
+  if (node) fillProviderNode(node, info);
 }
 
 // Unique per authorization: apex and its wildcard share identifier.value, so
@@ -537,7 +720,7 @@ function renderError(): HTMLElement {
       el("h2", {}, [t("err.title")]),
       el("div", { class: "form-error", style: "display:block; white-space:pre-wrap" }, [state.error]),
       el("div", { class: "form-actions" }, [
-        el("button", { class: "btn btn-primary", type: "button", onclick: () => goto("config") }, [
+        el("button", { class: "btn btn-primary", type: "button", onclick: resetFlow }, [
           t("err.startOver"),
         ]),
       ]),
@@ -567,6 +750,9 @@ function toggleLang(): void {
 }
 
 function resetFlow(): void {
+  clearSession();
+  pendingSession = null;
+  resetEnrichment();
   state.certKey = null;
   state.order = null;
   state.challenges = [];
@@ -574,6 +760,43 @@ function resetFlow(): void {
   state.privateKeyPem = "";
   state.client = null;
   goto("config");
+}
+
+function discardSession(): void {
+  clearSession();
+  pendingSession = null;
+  render();
+}
+
+// Rebuild the client from a persisted session and jump back to the SAME
+// challenge (same DNS/HTTP value). The account key restores the account
+// idempotently; the certificate key is regenerated later at finalize.
+async function resumeSession(): Promise<void> {
+  const s = pendingSession;
+  if (!s) return;
+  resetEnrichment();
+  state.workLines = ["resume.restoring"];
+  goto("work");
+  setLog("resume.restoring", "active");
+  try {
+    const accountKey = await importAccountKey(s.accountKeyJwk);
+    const client = new AcmeClient(s.config.env, accountKey, ACME_PROXY);
+    await client.init();
+    await client.createAccount(s.config.email || undefined);
+    client.restoreOrder(s.orderUrl);
+
+    state.config = { ...s.config };
+    state.accountKey = accountKey;
+    state.client = client;
+    state.order = s.order;
+    state.challenges = s.challenges;
+    state.certKey = null;
+    showChallenge();
+  } catch (e) {
+    clearSession();
+    pendingSession = null;
+    fail(e);
+  }
 }
 
 function describeError(e: unknown): string {
@@ -595,6 +818,7 @@ function fail(e: unknown): void {
 
 async function runSetup(): Promise<void> {
   const cfg = state.config!;
+  resetEnrichment();
   state.workLines = [
     "work.genAccountKey",
     "work.genCertKey",
@@ -630,7 +854,18 @@ async function runSetup(): Promise<void> {
     if (state.challenges.length === 0) {
       await runFinalize(); // every identifier already authorized
     } else {
-      goto("challenge");
+      // Persist so the user can close the tab and return to the SAME record.
+      if (state.client.pendingOrderUrl && state.accountKey && state.order) {
+        saveSession({
+          config: cfg,
+          accountKeyJwk: await exportAccountKeyJwk(state.accountKey),
+          order: state.order,
+          orderUrl: state.client.pendingOrderUrl,
+          challenges: state.challenges,
+        });
+        pendingSession = loadSession();
+      }
+      showChallenge();
     }
   } catch (e) {
     fail(e);
@@ -646,6 +881,13 @@ async function runVerify(btn: HTMLButtonElement): Promise<void> {
     );
     await runFinalize();
   } catch (e) {
+    // A non-network failure means the authorization is terminally invalid and
+    // the order can never finalize — drop the dead session so the resume banner
+    // doesn't trap the user in a loop. Keep it on a transient network error.
+    if (!(e instanceof TypeError)) {
+      clearSession();
+      pendingSession = null;
+    }
     fail(e);
   }
 }
@@ -656,14 +898,17 @@ async function runFinalize(): Promise<void> {
   goto("work");
   try {
     setLog("work.finalizing", "active");
-    const csr = await csrToAcmeBase64url(cfg.domains, state.certKey!);
+    if (!state.certKey) state.certKey = await generateCertKey(cfg.keyType); // resumed session
+    const csr = await csrToAcmeBase64url(cfg.domains, state.certKey);
     state.bundle = await state.client!.finalize(state.order!, csr);
     setLog("work.finalizing", "done");
 
     setLog("work.downloading", "active");
-    state.privateKeyPem = await exportPrivateKeyPem(state.certKey!.privateKey);
+    state.privateKeyPem = await exportPrivateKeyPem(state.certKey.privateKey);
     setLog("work.downloading", "done");
 
+    clearSession(); // certificate issued — the pending session is done
+    pendingSession = null;
     goto("done");
   } catch (e) {
     fail(e);
@@ -672,4 +917,5 @@ async function runFinalize(): Promise<void> {
 
 // ---------------------------------------------------------------- boot
 setLang(getLang());
+pendingSession = loadSession();
 render();

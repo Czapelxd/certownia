@@ -91,8 +91,32 @@ const pl: Dict = {
   "chal.copied": "Skopiowano!",
   "chal.dns.propagation":
     "Uwaga: zmiany DNS mogą propagować od kilku minut do godziny. Jeśli sprawdzenie się nie powiedzie, poczekaj i spróbuj ponownie.",
-  "chal.verify": "Sprawdź",
-  "chal.verifying": "Sprawdzam…",
+  "chal.verify": "Zweryfikuj domenę",
+  "chal.verifying": "Weryfikuję…",
+
+  "doh.check": "Sprawdź, czy rekord jest już widoczny",
+  "doh.checking": "Sprawdzam DNS…",
+  "doh.ok": "Rekord widoczny w DNS — możesz weryfikować",
+  "doh.pending": "Jeszcze nie widać — poczekaj chwilę i sprawdź ponownie",
+  "doh.error": "Nie udało się sprawdzić DNS — spróbuj ponownie",
+  "doh.hint":
+    "Najpierw sprawdź propagację, żeby nie klikać „Zweryfikuj” na ślepo (nieudana próba wymaga wygenerowania nowego rekordu).",
+  "doh.privacy":
+    "Sprawdzanie propagacji korzysta z publicznych serwerów DNS Cloudflare i Google — wysyłamy im tylko nazwę Twojej domeny.",
+
+  "provider.detected": "Wykryty dostawca DNS: {0}",
+  "provider.open": "Otwórz panel {0}",
+  "provider.generic": "Dodaj rekord w panelu DNS u swojego dostawcy domeny.",
+
+  "http.where.title": "Gdzie wgrać plik",
+  "http.where.body":
+    "Umieść plik na serwerze WWW domeny tak, aby był dostępny dokładnie pod adresem powyżej — czyli w folderze .well-known/acme-challenge w głównym katalogu strony. Musi działać po HTTP (port 80).",
+
+  "resume.text": "Masz niedokończoną weryfikację dla {0}.",
+  "resume.hint": "Możesz do niej wrócić — dane (rekord) są te same, nic nie trzeba dodawać od nowa.",
+  "resume.continue": "Wróć do weryfikacji",
+  "resume.discard": "Zacznij od nowa",
+  "resume.restoring": "Wczytuję zapisaną weryfikację…",
 
   "done.title": "Gotowe! Twój certyfikat jest gotowy",
   "done.subtitle":
@@ -218,8 +242,32 @@ const en: Dict = {
   "chal.copied": "Copied!",
   "chal.dns.propagation":
     "Note: DNS changes can take a few minutes to an hour to propagate. If verification fails, wait and retry.",
-  "chal.verify": "Verify",
+  "chal.verify": "Verify domain",
   "chal.verifying": "Verifying…",
+
+  "doh.check": "Check whether the record is visible yet",
+  "doh.checking": "Checking DNS…",
+  "doh.ok": "Record visible in DNS — you can verify now",
+  "doh.pending": "Not visible yet — wait a moment and check again",
+  "doh.error": "Could not check DNS — try again",
+  "doh.hint":
+    "Check propagation first so you don't click “Verify” blindly (a failed attempt requires generating a new record).",
+  "doh.privacy":
+    "The propagation check uses Cloudflare and Google public DNS — only your domain name is sent to them.",
+
+  "provider.detected": "Detected DNS provider: {0}",
+  "provider.open": "Open the {0} panel",
+  "provider.generic": "Add the record in your domain provider's DNS panel.",
+
+  "http.where.title": "Where to put the file",
+  "http.where.body":
+    "Place the file on the domain's web server so it is reachable at exactly the URL above — i.e. the .well-known/acme-challenge folder in your site root. It must work over HTTP (port 80).",
+
+  "resume.text": "You have an unfinished verification for {0}.",
+  "resume.hint": "You can return to it — the data (record) is the same, nothing to re-add.",
+  "resume.continue": "Resume verification",
+  "resume.discard": "Start over",
+  "resume.restoring": "Restoring saved verification…",
 
   "done.title": "Done! Your certificate is ready",
   "done.subtitle":

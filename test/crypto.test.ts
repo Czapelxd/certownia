@@ -7,7 +7,14 @@ import {
   bytesToPem,
   stringToBase64url,
 } from "../src/lib/base64.js";
-import { dns01Value, generateAccountKey, jwkThumbprint, keyAuthorization } from "../src/lib/crypto.js";
+import {
+  dns01Value,
+  exportAccountKeyJwk,
+  generateAccountKey,
+  importAccountKey,
+  jwkThumbprint,
+  keyAuthorization,
+} from "../src/lib/crypto.js";
 import { csrToAcmeBase64url } from "../src/lib/csr.js";
 
 describe("base64url", () => {
@@ -68,6 +75,25 @@ describe("JWK thumbprint (RFC 7638)", () => {
     const kp = await generateAccountKey();
     const thumb = await jwkThumbprint(kp.publicKey);
     expect(thumb).toMatch(/^[A-Za-z0-9_-]{43}$/);
+  });
+});
+
+describe("account key persistence (resume)", () => {
+  it("round-trips through a JWK with a stable thumbprint and usable private key", async () => {
+    const kp = await generateAccountKey();
+    const original = await jwkThumbprint(kp.publicKey);
+
+    const restored = await importAccountKey(await exportAccountKeyJwk(kp));
+
+    // Same thumbprint => same account => identical DNS/HTTP value after resume.
+    expect(await jwkThumbprint(restored.publicKey)).toBe(original);
+    // The restored private key must still sign ACME requests (ES256, 64-byte raw).
+    const sig = await crypto.subtle.sign(
+      { name: "ECDSA", hash: "SHA-256" },
+      restored.privateKey,
+      new TextEncoder().encode("payload"),
+    );
+    expect(sig.byteLength).toBe(64);
   });
 });
 
