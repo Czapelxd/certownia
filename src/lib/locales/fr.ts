@@ -110,6 +110,8 @@ export const fr: Dict = {
   "provider.detected": "Fournisseur DNS détecté : {0}",
   "provider.open": "Ouvrir le panneau {0}",
   "provider.hostList": "Ouvrir le panneau de votre hébergeur…",
+  "provider.steps":
+    "Connectez-vous au panneau de votre hébergeur ou fournisseur DNS.\nOuvrez les réglages DNS de votre domaine (« Zone DNS » / « Modifier le DNS » / « Enregistrements DNS »).\nAjoutez un nouvel enregistrement TXT — utilisez « Hôte/Nom » et « Valeur » du tableau ci-dessus.\nEnregistrez et patientez quelques minutes le temps de la propagation.",
   "provider.generic": "Ajoutez l'enregistrement dans le panneau DNS de votre fournisseur de domaine.",
 
   "http.where.title": "Où placer le fichier",

@@ -828,19 +828,20 @@ function onHostSelect(e: Event): void {
 function fillProviderNode(node: HTMLElement, info: ProviderInfo | null): void {
   node.style.display = "block";
   node.replaceChildren();
-  if (!info) {
-    node.append(
-      el("div", { style: "font-size:.86rem; color: var(--muted)" }, [t("provider.generic")]),
-      hostingDropdown(),
-    );
-    return;
-  }
+  // Generic "add the TXT record" guide that works for any DNS panel, plus a
+  // dropdown to open your host's panel. If a provider was detected we show its
+  // name as a hint above the universal steps.
+  const heading = info
+    ? el("h4", {}, [el("span", { class: "pill" }, ["DNS"]), t("provider.detected", info.name)])
+    : el("div", { style: "font-size:.86rem; color: var(--muted)" }, [t("provider.generic")]);
   node.append(
-    el("h4", {}, [el("span", { class: "pill" }, ["DNS"]), t("provider.detected", info.name)]),
+    heading,
     el(
       "ol",
       {},
-      (info.steps[getLang()] ?? info.steps.en ?? []).map((s) => el("li", {}, [s])),
+      t("provider.steps")
+        .split("\n")
+        .map((s) => el("li", {}, [s])),
     ),
     hostingDropdown(),
   );

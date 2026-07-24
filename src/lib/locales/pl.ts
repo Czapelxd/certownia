@@ -110,6 +110,8 @@ export const pl: Dict = {
   "provider.detected": "Wykryty dostawca DNS: {0}",
   "provider.open": "Otwórz panel {0}",
   "provider.hostList": "Otwórz panel swojego hostingu…",
+  "provider.steps":
+    "Zaloguj się do panelu swojego hostingu lub dostawcy DNS.\nWejdź w ustawienia DNS domeny („Strefa DNS” / „Edycja DNS” / „Rekordy DNS”).\nDodaj nowy rekord typu TXT — użyj „Host/Nazwa” i „Wartość” z tabeli powyżej.\nZapisz i poczekaj kilka minut na propagację.",
   "provider.generic": "Dodaj rekord w panelu DNS u swojego dostawcy domeny.",
 
   "http.where.title": "Gdzie wgrać plik",

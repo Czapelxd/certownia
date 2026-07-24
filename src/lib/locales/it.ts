@@ -109,6 +109,8 @@ export const it: Dict = {
   "provider.detected": "Provider DNS rilevato: {0}",
   "provider.open": "Apri il pannello di {0}",
   "provider.hostList": "Apri il pannello del tuo hosting…",
+  "provider.steps":
+    "Accedi al pannello del tuo hosting o provider DNS.\nApri le impostazioni DNS del dominio (“Zona DNS” / “Modifica DNS” / “Record DNS”).\nAggiungi un nuovo record TXT — usa “Host/Nome” e “Valore” dalla tabella qui sopra.\nSalva e attendi qualche minuto per la propagazione.",
   "provider.generic": "Aggiungi il record nel pannello DNS del tuo provider del dominio.",
 
   "http.where.title": "Dove mettere il file",

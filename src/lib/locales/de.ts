@@ -110,6 +110,8 @@ export const de: Dict = {
   "provider.detected": "Erkannter DNS-Anbieter: {0}",
   "provider.open": "Panel von {0} öffnen",
   "provider.hostList": "Panel deines Hosters öffnen…",
+  "provider.steps":
+    "Melde dich im Panel deines Hosters oder DNS-Anbieters an.\nÖffne die DNS-Einstellungen deiner Domain („DNS-Zone“ / „DNS bearbeiten“ / „DNS-Einträge“).\nFüge einen neuen TXT-Eintrag hinzu — nutze „Host/Name“ und „Wert“ aus der Tabelle oben.\nSpeichere und warte ein paar Minuten auf die Propagation.",
   "provider.generic": "Füge den Eintrag im DNS-Panel deines Domain-Anbieters hinzu.",
 
   "http.where.title": "Wohin mit der Datei",

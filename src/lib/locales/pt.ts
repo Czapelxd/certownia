@@ -110,6 +110,8 @@ export const pt: Dict = {
   "provider.detected": "Fornecedor de DNS detetado: {0}",
   "provider.open": "Abrir o painel {0}",
   "provider.hostList": "Abrir o painel do teu alojamento…",
+  "provider.steps":
+    "Inicia sessão no painel do teu alojamento ou fornecedor de DNS.\nAbre as definições de DNS do teu domínio (“Zona DNS” / “Editar DNS” / “Registos DNS”).\nAdiciona um novo registo TXT — usa “Host/Nome” e “Valor” da tabela acima.\nGuarda e aguarda alguns minutos pela propagação.",
   "provider.generic": "Adicione o registo no painel de DNS do seu fornecedor de domínio.",
 
   "http.where.title": "Onde colocar o ficheiro",
