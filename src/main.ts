@@ -30,7 +30,7 @@ import { getAccountKey, putAccountKey } from "./lib/idb.js";
 import { checkHttpFile, checkTxt, lookupNs } from "./lib/doh.js";
 import { detectProvider, type ProviderInfo } from "./lib/providers.js";
 
-const SOURCE_URL = "https://github.com/BAXY-IT/certownia";
+const SOURCE_URL = "https://github.com/BAXY-IT/baxy-it-ssl";
 const BAXY_URL = "https://baxy.it";
 
 // Optional ACME proxy. Empty by default — the browser talks to Let's Encrypt
