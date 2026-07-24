@@ -45,6 +45,8 @@ serwerze (Nginx: `ssl_certificate` / `ssl_certificate_key`; Apache:
   „Zweryfikuj” na ślepo.
 - **Zapamiętuje domenę** w przeglądarce — możesz zamknąć kartę i wrócić do tej
   samej weryfikacji (ten sam rekord), bez zaczynania od nowa.
+- **Generator komendy certbot / acme.sh** — na ekranie końcowym pokazuje gotową
+  komendę do uruchomienia na serwerze, żeby certyfikat odnawiał się automatycznie.
 
 ### Dlaczego to bezpieczne
 
@@ -93,6 +95,8 @@ your server (Nginx: `ssl_certificate` / `ssl_certificate_key`; Apache:
   “Verify” blindly.
 - **Remembers your domain** in the browser — close the tab and return to the same
   verification (same record) without starting over.
+- **certbot / acme.sh command generator** — the final screen shows a ready command
+  to run on your server so the certificate renews automatically.
 
 ### Why it's secure
 
@@ -134,6 +138,7 @@ Browser (all crypto here)                         Let's Encrypt ACME
   and NS lookup for provider detection.
 - **`src/lib/providers.ts`** — DNS provider knowledge base + matching by NS.
 - **`src/lib/session.ts`** — persist/resume a pending verification in localStorage.
+- **`src/lib/commands.ts`** — generate certbot / acme.sh commands for auto-renewal.
 - **`src/main.ts`** — the bilingual, themeable UI wizard.
 
 Key material never touches a server. There is an **optional** CORS proxy

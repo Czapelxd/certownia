@@ -132,6 +132,13 @@ const pl: Dict = {
   "done.whatnow": "Co dalej?",
   "done.whatnow.body":
     "Na serwerze użyj fullchain.pem jako certyfikatu i privkey.pem jako klucza prywatnego. W Apache to SSLCertificateFile i SSLCertificateKeyFile, w Nginx ssl_certificate i ssl_certificate_key.",
+  "cmd.title": "Automatyczne odnawianie na serwerze",
+  "cmd.body":
+    "Certyfikat z przeglądarki jest jednorazowy (wygasa za 90 dni). Żeby odnawiał się sam, uruchom na swoim serwerze certbota albo acme.sh:",
+  "cmd.autorenew.http":
+    "Ta komenda (weryfikacja przez plik / webroot) odnawia się automatycznie — certbot i acme.sh same dodają zadanie odnawiania.",
+  "cmd.autorenew.dns":
+    "Uwaga: ta komenda (ręczna weryfikacja DNS) wystawia certyfikat jednorazowo i NIE odnawia się sama. Żeby odnawiał się automatycznie, zamiast trybu ręcznego użyj wtyczki API swojego dostawcy DNS — np. „certbot --dns-cloudflare …” albo „acme.sh --dns dns_cf …”.",
   "done.again": "Wygeneruj kolejny",
 
   "err.title": "Coś poszło nie tak",
@@ -283,6 +290,13 @@ const en: Dict = {
   "done.whatnow": "What now?",
   "done.whatnow.body":
     "On your server use fullchain.pem as the certificate and privkey.pem as the private key. In Apache that's SSLCertificateFile and SSLCertificateKeyFile; in Nginx ssl_certificate and ssl_certificate_key.",
+  "cmd.title": "Automatic renewal on your server",
+  "cmd.body":
+    "The browser certificate is one-off (expires in 90 days). To renew it automatically, run certbot or acme.sh on your server:",
+  "cmd.autorenew.http":
+    "This command (file / webroot method) renews automatically — certbot and acme.sh set up the renewal job themselves.",
+  "cmd.autorenew.dns":
+    "Note: this command (manual DNS validation) issues the certificate once and does NOT auto-renew. For automatic renewal, replace the manual mode with your DNS provider's API plugin — e.g. “certbot --dns-cloudflare …” or “acme.sh --dns dns_cf …”.",
   "done.again": "Generate another",
 
   "err.title": "Something went wrong",

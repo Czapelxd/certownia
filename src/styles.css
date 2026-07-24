@@ -902,6 +902,33 @@ input:focus-visible {
   border-color: color-mix(in srgb, var(--info) 34%, transparent);
 }
 
+/* certbot / acme.sh command toggle */
+.cmd-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 14px 0 10px;
+}
+.cmd-tab {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 6px 15px;
+  border-radius: 999px;
+  border: 1px solid var(--border-bright);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+}
+.cmd-tab:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.cmd-tab.active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
 /* resume banner */
 .resume {
   display: flex;

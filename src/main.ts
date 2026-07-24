@@ -19,6 +19,7 @@ import {
   type CertKeyType,
 } from "./lib/crypto.js";
 import { csrToAcmeBase64url } from "./lib/csr.js";
+import { buildAcmeSh, buildCertbot } from "./lib/commands.js";
 import { copyToClipboard, downloadText } from "./lib/download.js";
 import { clearSession, loadSession, saveSession, type PersistedSession } from "./lib/session.js";
 import { checkTxt, lookupNs } from "./lib/doh.js";
@@ -683,6 +684,61 @@ function downloadTile(cls: string, title: string, file: string, content: string)
   return btn;
 }
 
+// "Automate renewal on your server" — a certbot / acme.sh command generator,
+// since the one-off browser flow can't auto-renew. Pure client-side, no backend.
+function renderAutomationSection(): HTMLElement {
+  const cfg = state.config!;
+  const staging = cfg.env === "staging";
+  const cmds: Record<string, string> = {
+    certbot: buildCertbot(cfg.domains, cfg.challenge, staging, cfg.email || undefined),
+    acmesh: buildAcmeSh(cfg.domains, cfg.challenge, staging),
+  };
+  let current = "certbot";
+
+  const codeEl = el("code", {}, [cmds.certbot]);
+  const copyBtn = el("button", { type: "button" }, [t("chal.copy")]);
+  copyBtn.addEventListener("click", async () => {
+    if (await copyToClipboard(cmds[current])) {
+      copyBtn.textContent = t("chal.copied");
+      copyBtn.classList.add("ok");
+      setTimeout(() => {
+        copyBtn.textContent = t("chal.copy");
+        copyBtn.classList.remove("ok");
+      }, 1600);
+    }
+  });
+  const field = el("div", { class: "copyfield" }, [codeEl, copyBtn]);
+
+  const tabs = el("div", { class: "cmd-tabs" });
+  (
+    [
+      ["certbot", "certbot"],
+      ["acmesh", "acme.sh"],
+    ] as const
+  ).forEach(([id, label]) => {
+    const btn = el("button", { type: "button", class: id === current ? "cmd-tab active" : "cmd-tab" }, [
+      label,
+    ]);
+    btn.addEventListener("click", () => {
+      current = id;
+      codeEl.textContent = cmds[id];
+      [...tabs.children].forEach((c) => (c as HTMLElement).classList.remove("active"));
+      btn.classList.add("active");
+    });
+    tabs.append(btn);
+  });
+
+  return el("div", { class: "callout", style: "margin-top:18px" }, [
+    el("h4", {}, [t("cmd.title")]),
+    el("p", { style: "margin:0 0 4px" }, [t("cmd.body")]),
+    tabs,
+    field,
+    el("p", { class: "note", style: "margin:10px 0 0" }, [
+      t(cfg.challenge === "dns-01" ? "cmd.autorenew.dns" : "cmd.autorenew.http"),
+    ]),
+  ]);
+}
+
 function renderDone(): HTMLElement {
   const b = state.bundle!;
   const staging = state.config!.env === "staging";
@@ -705,6 +761,7 @@ function renderDone(): HTMLElement {
       el("h4", {}, [t("done.whatnow")]),
       el("p", { style: "margin:0" }, [t("done.whatnow.body")]),
     ]),
+    renderAutomationSection(),
     el("p", { class: "note", style: "margin-top:18px" }, [t("done.expiry")]),
     el("div", { class: "form-actions" }, [
       el("button", { class: "btn btn-ghost", type: "button", onclick: resetFlow }, [t("done.again")]),
