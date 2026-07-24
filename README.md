@@ -139,7 +139,9 @@ Browser (all crypto here)                         Let's Encrypt ACME
 - **`src/lib/providers.ts`** — DNS provider knowledge base + matching by NS.
 - **`src/lib/session.ts`** — persist/resume a pending verification in localStorage.
 - **`src/lib/commands.ts`** — generate certbot / acme.sh commands for auto-renewal.
-- **`src/main.ts`** — the bilingual, themeable UI wizard.
+- **`src/main.ts`** — the multilingual, themeable UI wizard.
+- **`src/lib/i18n.ts`** + **`src/lib/locales/*.ts`** — one flat dictionary per
+  language (en, pl, de, es, fr, it, pt); English is the default and fallback.
 
 Key material never touches a server. There is an **optional** CORS proxy
 (`functions/proxy.js` for Cloudflare Pages, `proxy/node-server.mjs` for

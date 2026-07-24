@@ -9,7 +9,9 @@ export interface ProviderInfo {
   name: string;
   url: string;
   match: RegExp;
-  steps: Record<Lang, string[]>;
+  // Provider steps exist for pl/en; other languages fall back to en at the
+  // call site. Partial so we don't have to translate every provider panel.
+  steps: Partial<Record<Lang, string[]>>;
 }
 
 export const PROVIDERS: ProviderInfo[] = [

@@ -1,5 +1,5 @@
 import "./styles.css";
-import { getLang, setLang, t } from "./lib/i18n.js";
+import { getLang, setLang, t, LANGS, type Lang } from "./lib/i18n.js";
 import {
   AcmeClient,
   AcmeError,
@@ -228,9 +228,26 @@ function renderHeader(): HTMLElement {
         { class: "icon-btn", type: "button", "aria-label": "Theme", onclick: toggleTheme },
         [icon(ICON.sun)],
       ),
-      el("button", { class: "icon-btn", type: "button", onclick: toggleLang }, [t("lang.toggle")]),
+      renderLangSelect(),
     ]),
   ]);
+}
+
+// Language picker: a native <select> so the current language is always shown
+// and the full list is one tap away. Its value is the active language code.
+function renderLangSelect(): HTMLElement {
+  const sel = el(
+    "select",
+    { class: "lang-select", "aria-label": "Language", onchange: onLangChange },
+    LANGS.map((l) => el("option", { value: l.code }, [l.label])),
+  );
+  sel.value = getLang();
+  return sel;
+}
+
+function onLangChange(e: Event): void {
+  setLang((e.target as HTMLSelectElement).value as Lang);
+  render();
 }
 
 function renderStage(): HTMLElement {
@@ -761,7 +778,7 @@ function fillProviderNode(node: HTMLElement, info: ProviderInfo | null): void {
     el(
       "ol",
       {},
-      info.steps[getLang()].map((s) => el("li", {}, [s])),
+      (info.steps[getLang()] ?? info.steps.en ?? []).map((s) => el("li", {}, [s])),
     ),
     el("a", { href: info.url, target: "_blank", rel: "noopener" }, [t("provider.open", info.name)]),
   );
@@ -999,11 +1016,6 @@ function toggleTheme(): void {
   } catch {
     /* ignore */
   }
-  render();
-}
-
-function toggleLang(): void {
-  setLang(getLang() === "pl" ? "en" : "pl");
   render();
 }
 
