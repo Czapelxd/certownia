@@ -2,7 +2,7 @@ import type { Dict } from "../i18n.js";
 
 // Spanish (Español, es-ES).
 export const es: Dict = {
-  "app.name": "Certownia",
+  "app.name": "BAXY SSL",
   "app.tagline": "Certificado SSL gratuito, directamente en tu navegador",
   "app.poweredBy": "Con la tecnología de Let's Encrypt",
 
@@ -176,7 +176,7 @@ export const es: Dict = {
     "El certificado es válido durante 90 días. En lugar de hacerlo a mano cada 3 meses, elige tu situación:",
   "renew.shared.title": "Hosting compartido (cyberFolks, OVH, nazwa.pl…)",
   "renew.shared.body":
-    "Lo más fácil: el panel de tu hosting suele tener un certificado SSL gratuito que se renueva solo (Let's Encrypt / AutoSSL). Actívalo una vez y listo — busca una sección “SSL” o “Certificates”. Así no necesitas ni certbot ni Certownia.",
+    "Lo más fácil: el panel de tu hosting suele tener un certificado SSL gratuito que se renueva solo (Let's Encrypt / AutoSSL). Actívalo una vez y listo — busca una sección “SSL” o “Certificates”. Así no necesitas ni certbot ni BAXY SSL.",
   "renew.vps.title": "¿Tienes tu propio servidor (VPS) y quieres automatización completa?",
   "renew.vps.body":
     "Usa certbot — renueva el certificado por sí solo. Elige un método. Los comandos ya incluyen “--deploy-hook” para que el servidor recargue el nuevo certificado tras la renovación — cambia “nginx” por “apache2” si usas Apache:",
@@ -211,5 +211,5 @@ export const es: Dict = {
   "cmd.caveat":
     "Ejecútalo en tu propio servidor y bajo tu responsabilidad — revísalo antes. Incluye --agree-tos, que acepta los términos de Let's Encrypt en tu nombre.",
   "footer.notAffiliated":
-    "Certownia es un proyecto de código abierto y no está afiliada a Let's Encrypt ni ISRG, ni patrocinada o respaldada por ellos. Let's Encrypt es un servicio gratuito y una marca registrada de ISRG.",
+    "BAXY SSL es un proyecto de código abierto y no está afiliada a Let's Encrypt ni ISRG, ni patrocinada o respaldada por ellos. Let's Encrypt es un servicio gratuito y una marca registrada de ISRG.",
 };

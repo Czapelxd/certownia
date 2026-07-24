@@ -1,5 +1,5 @@
 /* ============================================================================
-   Certownia — BAXY IT brand system.
+   BAXY SSL — BAXY IT brand system.
    Light "paper" canvas, ink navy, raspberry-pink brand accent, green = success,
    amber = staging. Display: Bricolage Grotesque · Body: Inter · Data: Geist Mono.
    Theming via CSS variables + [data-theme]; light is the default (matches baxy.it).
@@ -170,6 +170,14 @@ body {
   text-transform: uppercase;
   color: var(--muted);
   margin-top: 2px;
+}
+.brand-tag a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.brand-tag a:hover {
+  color: var(--accent);
 }
 .header-actions {
   display: flex;

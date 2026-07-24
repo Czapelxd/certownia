@@ -217,8 +217,15 @@ function renderHeader(): HTMLElement {
     el("div", { class: "brand" }, [
       icon(ICON.brand, "brand-mark"),
       el("div", { class: "brand-text" }, [
-        el("span", { class: "brand-name" }, ["Certownia"]),
-        el("span", { class: "brand-tag" }, ["by BAXY", el("span", { class: "dot" }, ["."]), "it"]),
+        el("span", { class: "brand-name" }, ["BAXY SSL"]),
+        el("span", { class: "brand-tag" }, [
+          "by ",
+          el("a", { href: BAXY_URL, target: "_blank", rel: "noopener" }, [
+            "BAXY",
+            el("span", { class: "dot" }, ["."]),
+            "it",
+          ]),
+        ]),
       ]),
     ]),
     el("div", { class: "header-actions" }, [

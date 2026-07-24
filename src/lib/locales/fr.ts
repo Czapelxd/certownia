@@ -1,7 +1,7 @@
 import type { Dict } from "../i18n.js";
 
 export const fr: Dict = {
-  "app.name": "Certownia",
+  "app.name": "BAXY SSL",
   "app.tagline": "Certificat SSL gratuit, directement dans votre navigateur",
   "app.poweredBy": "Propulsé par Let's Encrypt",
 
@@ -176,7 +176,7 @@ export const fr: Dict = {
     "Le certificat est valable 90 jours. Plutôt que de le faire à la main tous les 3 mois, choisissez votre situation :",
   "renew.shared.title": "Hébergement mutualisé (cyberFolks, OVH, nazwa.pl…)",
   "renew.shared.body":
-    "Le plus simple : votre panneau d'hébergement propose généralement un certificat SSL gratuit qui se renouvelle tout seul (Let's Encrypt / AutoSSL). Activez-le une fois et c'est réglé — cherchez une section “SSL” ou “Certificates”. Vous n'aurez alors besoin ni de certbot ni de Certownia.",
+    "Le plus simple : votre panneau d'hébergement propose généralement un certificat SSL gratuit qui se renouvelle tout seul (Let's Encrypt / AutoSSL). Activez-le une fois et c'est réglé — cherchez une section “SSL” ou “Certificates”. Vous n'aurez alors besoin ni de certbot ni de BAXY SSL.",
   "renew.vps.title": "Vous avez votre propre serveur (VPS) et voulez une automatisation complète ?",
   "renew.vps.body":
     "Utilisez certbot — il renouvelle le certificat tout seul. Choisissez une méthode. Les commandes incluent déjà “--deploy-hook” pour que le serveur recharge le nouveau certificat après le renouvellement — remplacez “nginx” par “apache2” si vous utilisez Apache :",
@@ -211,5 +211,5 @@ export const fr: Dict = {
   "cmd.caveat":
     "À exécuter sur votre propre serveur, à vos risques — vérifiez-la d'abord. Elle inclut --agree-tos, qui accepte les conditions de Let's Encrypt en votre nom.",
   "footer.notAffiliated":
-    "Certownia est un projet open source, sans affiliation avec Let's Encrypt ou ISRG, ni parrainage ni approbation de leur part. Let's Encrypt est un service gratuit et une marque déposée d'ISRG.",
+    "BAXY SSL est un projet open source, sans affiliation avec Let's Encrypt ou ISRG, ni parrainage ni approbation de leur part. Let's Encrypt est un service gratuit et une marque déposée d'ISRG.",
 };

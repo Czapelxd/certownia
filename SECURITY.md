@@ -1,6 +1,6 @@
 # Security
 
-Certownia handles cryptographic key material, so security is the whole point.
+BAXY SSL handles cryptographic key material, so security is the whole point.
 
 ## Design guarantees
 

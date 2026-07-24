@@ -2,7 +2,7 @@ import type { Dict } from "../i18n.js";
 
 // Portuguese (European, pt-PT).
 export const pt: Dict = {
-  "app.name": "Certownia",
+  "app.name": "BAXY SSL",
   "app.tagline": "Certificado SSL gratuito, mesmo no seu navegador",
   "app.poweredBy": "Com a tecnologia de Let's Encrypt",
 
@@ -176,7 +176,7 @@ export const pt: Dict = {
     "O certificado é válido por 90 dias. Em vez de fazer isto à mão a cada 3 meses, escolha a sua situação:",
   "renew.shared.title": "Alojamento partilhado (cyberFolks, OVH, nazwa.pl…)",
   "renew.shared.body":
-    "O mais fácil: o painel do seu alojamento costuma ter um certificado SSL gratuito que se renova sozinho (Let's Encrypt / AutoSSL). Ative-o uma vez e está feito — procure uma secção “SSL” ou “Certificados”. Assim não precisa nem do certbot nem da Certownia.",
+    "O mais fácil: o painel do seu alojamento costuma ter um certificado SSL gratuito que se renova sozinho (Let's Encrypt / AutoSSL). Ative-o uma vez e está feito — procure uma secção “SSL” ou “Certificados”. Assim não precisa nem do certbot nem da BAXY SSL.",
   "renew.vps.title": "Tem o seu próprio servidor (VPS) e quer automatizar tudo?",
   "renew.vps.body":
     "Use o certbot — renova o certificado sozinho. Escolha um método. Os comandos já incluem “--deploy-hook” para que o servidor recarregue o novo certificado depois da renovação — troque “nginx” por “apache2” se usar o Apache:",
@@ -211,5 +211,5 @@ export const pt: Dict = {
   "cmd.caveat":
     "Execute-o no seu próprio servidor e por sua conta e risco — reveja-o primeiro. Inclui --agree-tos, que aceita os termos de Let's Encrypt em seu nome.",
   "footer.notAffiliated":
-    "A Certownia é um projeto open source, sem afiliação com Let's Encrypt ou ISRG, nem patrocínio ou aprovação. Let's Encrypt é um serviço gratuito e uma marca registada da ISRG.",
+    "A BAXY SSL é um projeto open source, sem afiliação com Let's Encrypt ou ISRG, nem patrocínio ou aprovação. Let's Encrypt é um serviço gratuito e uma marca registada da ISRG.",
 };

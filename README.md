@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🔒 Certownia
+# 🔒 BAXY SSL
 
 **Darmowy certyfikat SSL prosto w przeglądarce — Twój klucz prywatny nigdy nie opuszcza Twojego komputera.**
 
@@ -15,7 +15,7 @@ Napędzane przez [Let's Encrypt](https://letsencrypt.org) · Powered by Let's En
 
 ## 🇵🇱 Po polsku
 
-**Certownia** to darmowe narzędzie online, które wystawia zaufane certyfikaty
+**BAXY SSL** to darmowe narzędzie online, które wystawia zaufane certyfikaty
 SSL/TLS dla Twojej domeny — bez zakładania konta, bez instalowania czegokolwiek,
 w kilka minut. Cała kryptografia (klucz prywatny, CSR, podpisy) dzieje się w
 **Twojej przeglądarce**. Serwer nie jest potrzebny i nigdy nie widzi Twojego
@@ -25,7 +25,7 @@ klucza prywatnego.
 
 1. **Podaj domenę** — jedną lub kilka (obsługa wielu domen i wildcard `*.`).
 2. **Potwierdź własność** — dodajesz rekord TXT w DNS albo plik na serwerze WWW;
-   Certownia pokazuje dokładnie jaki.
+   BAXY SSL pokazuje dokładnie jaki.
 3. **Pobierz certyfikat** — klucz prywatny (`privkey.pem`) i certyfikat
    (`fullchain.pem`, `cert.pem`, `chain.pem`) lądują na Twoim dysku.
 
@@ -66,7 +66,7 @@ Szczegóły w [SECURITY.md](SECURITY.md).
 
 ## 🇬🇧 In English
 
-**Certownia** is a free online tool that issues trusted SSL/TLS certificates for
+**BAXY SSL** is a free online tool that issues trusted SSL/TLS certificates for
 your domain — no account, nothing to install, in minutes. All cryptography (the
 private key, the CSR, the signatures) happens **in your browser**. No server is
 required and none ever sees your private key.
@@ -75,7 +75,7 @@ required and none ever sees your private key.
 
 1. **Enter your domain(s)** — one or many, wildcard `*.` supported.
 2. **Prove ownership** — add a DNS TXT record or a file on your web server;
-   Certownia shows the exact one.
+   BAXY SSL shows the exact one.
 3. **Download the certificate** — the private key (`privkey.pem`) and certificate
    (`fullchain.pem`, `cert.pem`, `chain.pem`) land on your disk.
 
@@ -113,7 +113,7 @@ your server (Nginx: `ssl_certificate` / `ssl_certificate_key`; Apache:
 
 ## Architecture
 
-Certownia is a static single-page app. The interesting part is that it speaks
+BAXY SSL is a static single-page app. The interesting part is that it speaks
 the full **ACME v2 protocol** ([RFC 8555](https://datatracker.ietf.org/doc/html/rfc8555))
 straight from the browser:
 
@@ -167,7 +167,7 @@ npm run build      # → dist/
 
 ## Deployment
 
-Certownia builds to a folder of static files — host it anywhere.
+BAXY SSL builds to a folder of static files — host it anywhere.
 
 **Cloudflare Pages / Netlify / Vercel (recommended):** build command `npm run
 build`, output directory `dist`. Base path is `/`, no extra config.
@@ -184,7 +184,7 @@ proxy, build with `VITE_ACME_PROXY=https://your-proxy/` (see `.env.example`).
 
 Certificate lifetimes are getting shorter (Let's Encrypt is moving toward
 ~45-day certificates), which means renewal should be **automated** on your
-server (certbot, Caddy, Traefik, acme.sh). A click-through tool like Certownia is
+server (certbot, Caddy, Traefik, acme.sh). A click-through tool like BAXY SSL is
 great for a one-off certificate, a quick test, or learning how ACME works — for
 production, automate renewal.
 

@@ -2,7 +2,7 @@ import type { Dict } from "../i18n.js";
 
 // German.
 export const de: Dict = {
-  "app.name": "Certownia",
+  "app.name": "BAXY SSL",
   "app.tagline": "Kostenloses SSL-Zertifikat, direkt in deinem Browser",
   "app.poweredBy": "Ermöglicht durch Let's Encrypt",
 
@@ -176,7 +176,7 @@ export const de: Dict = {
     "Das Zertifikat ist 90 Tage gültig. Statt das alle 3 Monate von Hand zu machen, wähle deine Situation:",
   "renew.shared.title": "Shared Hosting (cyberFolks, OVH, nazwa.pl…)",
   "renew.shared.body":
-    "Am einfachsten: Dein Hosting-Panel bietet meist ein kostenloses, sich selbst erneuerndes SSL-Zertifikat (Let's Encrypt / AutoSSL). Aktiviere es einmal und du bist fertig — suche nach einem Bereich “SSL” oder “Zertifikate”. Dann brauchst du weder certbot noch Certownia.",
+    "Am einfachsten: Dein Hosting-Panel bietet meist ein kostenloses, sich selbst erneuerndes SSL-Zertifikat (Let's Encrypt / AutoSSL). Aktiviere es einmal und du bist fertig — suche nach einem Bereich “SSL” oder “Zertifikate”. Dann brauchst du weder certbot noch BAXY SSL.",
   "renew.vps.title": "Hast du einen eigenen Server (VPS) und willst volle Automatisierung?",
   "renew.vps.body":
     "Nutze certbot — es erneuert das Zertifikat von selbst. Wähle eine Methode. Die Befehle enthalten bereits “--deploy-hook”, damit der Server das neue Zertifikat nach der Erneuerung neu lädt — ändere “nginx” in “apache2”, wenn du Apache verwendest:",
@@ -211,5 +211,5 @@ export const de: Dict = {
   "cmd.caveat":
     "Führe ihn auf deinem eigenen Server und auf eigenes Risiko aus — prüfe ihn vorher. Er enthält --agree-tos, akzeptiert die Let's-Encrypt-Bedingungen also in deinem Namen.",
   "footer.notAffiliated":
-    "Certownia ist ein Open-Source-Projekt und steht in keiner Verbindung zu Let's Encrypt oder ISRG und wird von ihnen weder gesponsert noch unterstützt. Let's Encrypt ist ein kostenloser Dienst und eine Marke von ISRG.",
+    "BAXY SSL ist ein Open-Source-Projekt und steht in keiner Verbindung zu Let's Encrypt oder ISRG und wird von ihnen weder gesponsert noch unterstützt. Let's Encrypt ist ein kostenloser Dienst und eine Marke von ISRG.",
 };
