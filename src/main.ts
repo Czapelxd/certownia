@@ -851,7 +851,8 @@ function cmdToggle(certbot: string, acmesh: string): HTMLElement {
 }
 
 // Landing-page alternative: the same one-off issuance straight from the terminal
-// (it also prompts for a manual DNS record — so it's a real alternative path).
+// (it also prompts for a manual DNS record — so it's a real alternative path),
+// with automatic renewal tucked into a collapsible below.
 function renderCliAlternative(): HTMLElement {
   const certbot = buildCertbot(["example.com"], "dns-01", false);
   const acmesh = buildAcmeSh(["example.com"], "dns-01", false);
@@ -860,18 +861,21 @@ function renderCliAlternative(): HTMLElement {
     el("p", { class: "cli-alt-body" }, [t("alt.body")]),
     cmdToggle(certbot, acmesh),
     el("p", { class: "note", style: "margin:10px 0 0" }, [t("alt.note")]),
+    el("details", { class: "renew-details" }, [
+      el("summary", {}, [t("alt.renewToggle")]),
+      renderRenewalGuide(["example.com"]),
+    ]),
   ]);
 }
 
-// Done screen: how to make the certificate renew itself (shared hosting vs VPS).
-function renderRenewalGuide(): HTMLElement {
-  const cfg = state.config!;
-  const email = cfg.email || undefined;
+// How to make the certificate renew itself (shared hosting vs VPS). Reused on the
+// done screen (real domains) and the landing collapsible (a placeholder domain).
+function renderRenewalGuide(domains: string[], email?: string): HTMLElement {
   // certonly renews the files but doesn't reload the web server — a deploy hook
   // does. nginx is the common default; the copy tells Apache users to swap it.
   const hook = ' --deploy-hook "systemctl reload nginx"';
-  const webroot = buildCertbot(cfg.domains, "http-01", false, email) + hook;
-  const dns = buildCertbotDnsCloudflare(cfg.domains, email) + hook;
+  const webroot = buildCertbot(domains, "http-01", false, email) + hook;
+  const dns = buildCertbotDnsCloudflare(domains, email) + hook;
   return el("div", { class: "callout", style: "margin-top:18px" }, [
     el("h4", {}, [t("renew.title")]),
     el("p", { style: "margin:0 0 14px" }, [t("renew.body")]),
@@ -943,7 +947,7 @@ function renderDone(): HTMLElement {
     ]),
 
     // Automatic renewal (certbot / acme.sh)
-    renderRenewalGuide(),
+    renderRenewalGuide(state.config!.domains, state.config!.email || undefined),
 
     el("p", { class: "note", style: "margin-top:18px" }, [t("done.expiry")]),
     el("div", { class: "form-actions" }, [

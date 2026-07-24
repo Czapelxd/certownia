@@ -1035,6 +1035,35 @@ input:focus-visible {
   margin: 14px 0 6px;
   font-weight: 500;
 }
+.renew-details {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.renew-details > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.86rem;
+  color: var(--accent);
+  list-style: none;
+  user-select: none;
+}
+.renew-details > summary::-webkit-details-marker {
+  display: none;
+}
+.renew-details > summary::before {
+  content: "▸ ";
+}
+.renew-details[open] > summary::before {
+  content: "▾ ";
+}
+.renew-details > summary:hover {
+  color: var(--accent-strong);
+}
+/* the guide already has its own top margin/callout; tighten it inside details */
+.renew-details .callout {
+  margin-top: 12px;
+}
 
 /* resume banner */
 .resume {

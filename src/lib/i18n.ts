@@ -172,8 +172,8 @@ const pl: Dict = {
   "alt.title": "Wolisz terminal? Zrób to na serwerze",
   "alt.body":
     "To samo, ale komendą na Twoim serwerze: certbot (albo acme.sh) poprosi Cię o dodanie rekordu TXT — dokładnie tak samo jak w kreatorze wyżej — i wyda certyfikat. Podmień tylko example.com na swoją domenę.",
-  "alt.note":
-    "To komenda jednorazowa. Jak sprawić, żeby certyfikat odnawiał się sam, opisujemy na ekranie końcowym — po jego wygenerowaniu.",
+  "alt.note": "To komenda jednorazowa — nie odnawia się sama.",
+  "alt.renewToggle": "Automatyczne odnawianie — jak ustawić (rozwiń)",
 
   "renew.title": "Jak sprawić, żeby certyfikat odnawiał się sam",
   "renew.body":
@@ -383,8 +383,8 @@ const en: Dict = {
   "alt.title": "Prefer the terminal? Do it on your server",
   "alt.body":
     "The same thing, but as a command on your server: certbot (or acme.sh) will ask you to add a TXT record — exactly like the wizard above — and issue the certificate. Just swap example.com for your domain.",
-  "alt.note":
-    "This is a one-off command. How to make the certificate renew itself is covered on the final screen, after you generate it.",
+  "alt.note": "This is a one-off command — it doesn't renew itself.",
+  "alt.renewToggle": "Automatic renewal — how to set it up (expand)",
 
   "renew.title": "How to make the certificate renew itself",
   "renew.body":
